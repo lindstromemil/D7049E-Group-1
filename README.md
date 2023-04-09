@@ -2,7 +2,7 @@
 
 ## Libraries: 
 language: python
-3D library: Ogre \n
+3D library: Ogre <br />
 physics library: pybullet
 audio library:
 
