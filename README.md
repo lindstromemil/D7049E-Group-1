@@ -1,12 +1,12 @@
 # D7049E-Group-1
 
-##Libraries: 
+## Libraries: 
 Ogre imported in python
 
 
-##Games Genre:
+## Games Genre:
 3D shooter with focus on aim training
 
 
-##Prioritized Attributes:
+## Prioritized Attributes:
 
