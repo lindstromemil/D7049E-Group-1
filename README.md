@@ -15,6 +15,5 @@ audio library:
 * responsive camera <br />
 * forgiving physics <br />
 * NPC AI <br />
-* Online multiplayer <br />
 * High fidelity animations
 
