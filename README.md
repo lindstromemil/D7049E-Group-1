@@ -1,19 +1,19 @@
 # D7049E-Group-1
 
 ## Libraries: 
-language: python <br />
+Language: python <br />
 3D library: Ogre <br />
-physics library: pybullet <br />
-audio library:
+Physics library: pybullet <br />
+Audio library:
 
 
-## Games Genre:
+## Game Genre:
 3D shooter with focus on aim training
 
 
 ## Prioritized Attributes:
-* responsive camera <br />
-* forgiving physics <br />
+* Responsive camera <br />
+* Forgiving physics <br />
 * NPC AI <br />
 * High fidelity animations
 
