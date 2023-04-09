@@ -2,16 +2,15 @@
 The group consists of 4 people studying D7049E at LTU.
 
 ### Games Genre:
-3D shooter with focus on aim training similar to [aim lab](https://aimlab.gg/)
+3D shooter with focus on aim training similar to [Aim Lab](https://aimlab.gg/)
 
 ## Libraries:
-**Language**: python <br />
-**3D library**: Ogre <br />
-**Physics library**: pybullet <br />
-**Audio library**: 
+**Language**: Python <br />
+**3D library**: Ogre or Pyglet(OpenGL) <br />
+**Physics library**: PyBullet <br />
+**Audio library**: OpenAL <br />
 
 ## Prioritized Attributes:
-* responsive camera <br />
-* forgiving physics <br />
-* NPC AI <br />
+* Responsive camera <br />
+* Forgiving physics <br />
 * High fidelity animations
