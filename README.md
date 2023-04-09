@@ -1,7 +1,10 @@
 # D7049E-Group-1
 
 ## Libraries: 
-Ogre imported in python
+language: python
+3D library: Ogre
+physics library: pybullet
+audio library:
 
 
 ## Games Genre:
