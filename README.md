@@ -14,7 +14,7 @@ Both documents will get updated as the course progresses and are not final.
 
 ## Libraries:
 **Language**: Python <br />
-**3D library**: Ogre or Pyglet(OpenGL) <br />
+**3D library**: Ogre <br />
 **Physics library**: PyBullet <br />
 **Audio library**: OpenAL <br />
 
