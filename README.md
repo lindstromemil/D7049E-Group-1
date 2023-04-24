@@ -22,3 +22,13 @@ Both documents will get updated as the course progresses and are not final.
 * Responsive camera <br />
 * Forgiving physics <br />
 * High fidelity animations
+
+## Setup
+
+Run `sample.py` and it will generate the config files in `/Documents/PySample` on your main drive. Do the following inside `/PySample`: 
+
+Add a folder named `Meshes` where the mesh, material and skeleton files will be. Add a file named `resources.cfg` and insert
+```
+[General] 
+FileSystem=../PySample/Meshes
+```
