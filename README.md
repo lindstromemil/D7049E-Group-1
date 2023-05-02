@@ -16,7 +16,7 @@ Both documents will get updated as the course progresses and are not final.
 **Language**: Python <br />
 **3D library**: Ogre <br />
 **Physics library**: PyBullet <br />
-**Audio library**: OpenAL <br />
+**Audio library**: PyOpenAL <br />
 
 ## Prioritized Attributes:
 * Responsive camera <br />
@@ -31,4 +31,11 @@ Add a folder named `Meshes` where the mesh, material and skeleton files will be.
 ```
 [General] 
 FileSystem=../PySample/Meshes
+```
+
+### All pip installs (so far)
+```
+pip install PyOpenAL
+pip install pynput
+pip install pybullet
 ```
