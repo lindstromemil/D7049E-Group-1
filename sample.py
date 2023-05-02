@@ -1,14 +1,23 @@
 import Ogre
 import Ogre.Bites
 import Ogre.RTShader
+from threading import Thread
+
+from communication.messageHandling import MessageHandling
+from communication.component import Event
+from communication.message import Message
 
 class KeyListener(Ogre.Bites.InputListener):
-    def __init__(self):
+    def __init__(self, message_handler: MessageHandling):
         Ogre.Bites.InputListener.__init__(self)
+        self.message_handler = message_handler
 
     def keyPressed(self, evt):
         if evt.keysym.sym == Ogre.Bites.SDLK_ESCAPE:
-            Ogre.Root.getSingleton().queueEndRendering()
+            event = Event("bullet", "object", "explode")
+            message = Message(event)
+            self.message_handler.add_message(message)
+            #Ogre.Root.getSingleton().queueEndRendering()
 
         return True
 
@@ -18,7 +27,12 @@ def main():
     ctx.initApp()
 
     # register for input events
-    klistener = KeyListener() # must keep a reference around
+
+    message_handler = MessageHandling()
+    handle_message = Thread(target=message_handler.handle_messages, daemon=True)
+    handle_message.start()
+
+    klistener = KeyListener(message_handler) # must keep a reference around
     ctx.addInputListener(klistener)
 
     root = ctx.getRoot()
@@ -56,6 +70,8 @@ def main():
     ent = scn_mgr.createEntity("Sinbad.mesh")
     node = scn_mgr.getRootSceneNode().createChildSceneNode()
     node.attachObject(ent)
+
+    
 
     root.startRendering() # blocks until queueEndRendering is called
 
