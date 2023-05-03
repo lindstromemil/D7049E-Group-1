@@ -1,9 +1,8 @@
 
 from .message import Message
-from .component import Component
 from threading import Lock
 from threading import Thread
-from .component import Action
+from .action import Action
 
 class MessageHandling():
 
@@ -14,6 +13,12 @@ class MessageHandling():
         handle_message = Thread(target=self.handle_messages, daemon=True)
         handle_message.start()
 
+    # Make it a singleton
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(MessageHandling, cls).__new__(cls)
+        return cls.instance
+    
     def handle_messages(self):
         while True:
             self._lock.acquire()
@@ -43,8 +48,12 @@ class MessageHandling():
         except:
             print(f"Failed to find component with id: {message.get_reciever()}")
 
-    def add_component(self, component: Component):
-        self.components.update({component.get_id(): component.get_instance()})
+    def add_component(self, component: Action):
+        if issubclass(component.__class__, Action):
+            self.components.update({component.id: component})
+        else:
+            print("The component does not implement Action Class")
+        #self.components.update({component.get_id(): component.get_instance()})
 
     def remove_component(self, id):
         self.components.pop(id)

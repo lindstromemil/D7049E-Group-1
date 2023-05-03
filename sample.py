@@ -4,7 +4,7 @@ import Ogre.RTShader
 from threading import Thread
 
 from communication.messageHandling import MessageHandling
-from communication.component import Event
+from communication.action import Event
 from communication.message import Message
 
 class KeyListener(Ogre.Bites.InputListener):
