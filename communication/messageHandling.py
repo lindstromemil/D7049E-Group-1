@@ -5,19 +5,23 @@ from threading import Thread
 from .action import Action
 
 class MessageHandling():
-
-    def __init__(self):
-        self.messages = []
-        self.components = dict()
-        self._lock = Lock()
-        handle_message = Thread(target=self.handle_messages, daemon=True)
-        handle_message.start()
+    __instance = None
 
     # Make it a singleton
     def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(MessageHandling, cls).__new__(cls)
-        return cls.instance
+        if cls.__instance is None:
+            cls.__instance = super(MessageHandling, cls).__new__(cls)
+            cls.__instance.__initialized  = False
+        return cls.__instance
+    
+    def __init__(self):
+        if(self.__initialized): return
+        self.__initialized = True
+        self.messages = []
+        self.components = dict()
+        self._lock = Lock()
+        self.handle_message = Thread(target=self.handle_messages, daemon=True)
+        self.handle_message.start()
     
     def handle_messages(self):
         while True:

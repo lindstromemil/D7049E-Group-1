@@ -17,11 +17,13 @@ class Action():
 class OnPressed():
     def __init__(self, key):
         self.key = key
+
 class OnClick():
     def __init__(self, xcord, ycord, button):
         self.xcord = xcord
         self.ycord = ycord
         self.button = button
+        
 class MouseMoved():
     def __init__(self, xcord, ycord):
         self.xcord = xcord

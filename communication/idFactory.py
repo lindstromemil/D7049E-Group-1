@@ -2,15 +2,22 @@
 from threading import Lock
 
 class IdFactory():
-    def __init__(self):
-        self._lock = Lock()
-        self.currentID = 0
+    __instance = None
 
     # Make it a singleton
     def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(IdFactory, cls).__new__(cls)
-        return cls.instance
+        if cls.__instance is None:
+            cls.__instance = super(IdFactory, cls).__new__(cls)
+            cls.__instance.__initialized  = False
+        else:
+            cls.__instance.get_new_id()
+        return cls.__instance
+    
+    def __init__(self):
+        if(self.__initialized): return
+        self.__initialized = True
+        self._lock = Lock()
+        self.currentID = 0
 
     def get_new_id(self):
         self._lock.acquire()
