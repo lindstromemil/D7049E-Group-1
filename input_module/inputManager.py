@@ -5,19 +5,22 @@ from communication.action import Action, OnClick, OnPressed, MouseMoved
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 from communication.bullet import Bullet
+from physics.physics import Physics
 from threading import Thread
 
 import queue
 
 class InputListener(Action):
-    def __init__(self):
+    def __init__(self, physicsId):
         super().__init__()
+        self.physicsId = physicsId
         self.thread = Thread(target=self.start, daemon=True)
         self.thread.start()
 
 
     def on_press(self, key):
-        MessageHandling().add_message(Message("inputManager", Bullet().id, OnPressed(key)))
+        MessageHandling().add_message(Message("inputManager", self.physicsId, OnPressed(key)))
+        #MessageHandling().add_message(Message("inputManager", Bullet().id, OnPressed(key)))
         # try:
         #     print('key {0} pressed'.format(key))
         # except AttributeError:
@@ -40,15 +43,16 @@ class InputListener(Action):
     def on_scroll(self, x, y, dx, dy):
         print("Mouse scrolled at ({0} : {1}) ({2} : {3})".format(x, y, dx, dy))
 
+
     def start(self):
         print("Starting Keyboard and Mouse Listener.....")
         keyboard_listener = KeyboardListener(on_press=self.on_press, on_release=self.on_release)
-        mouse_listener = MouseListener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll) 
+        #mouse_listener = MouseListener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll) 
         print("Keyboard and Mouse Listener setup complete")
         keyboard_listener.start()
-        mouse_listener.start()
+        #mouse_listener.start()
         keyboard_listener.join()
-        mouse_listener.join()
+        #mouse_listener.join()
 
     def do_action(self, action):
         print(f"event '{action}' was done in inputmanager!")

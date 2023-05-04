@@ -6,6 +6,7 @@ import logging
 from communication.bullet import Bullet
 from audio_module.audioHandeler import Sound
 from input_module.inputManager import InputListener
+from physics.physics import Physics
 
 def main():
     message_handler = MessageHandling()
@@ -17,10 +18,15 @@ def main():
     #sound = Sound('audio_module\\Sounds\\')
     #message_handler.add_component(sound)
 
-    input_manager = InputListener()
-
+    physicsEngine = Physics()
+    input_manager = InputListener(physicsEngine.id)
+    
     message_handler.add_component(bullet)
     message_handler.add_component(input_manager)
+    message_handler.add_component(physicsEngine)
+
+
+    #physicsEngine.start()
     
     #message = Message("object", sound.id, "explode")
     while True:
