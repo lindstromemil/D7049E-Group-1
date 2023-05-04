@@ -33,7 +33,7 @@ class MessageHandling():
 
     def add_message(self, message: Message):
         self._lock.acquire()
-        print(f"event '{message.get_action()}' was added")
+        #print(f"event '{message.get_action()}' was added")
         self.messages.append(message)
         self._lock.release()
 
@@ -47,7 +47,7 @@ class MessageHandling():
         try:
             reciever = self.components[message.get_reciever()]
             if issubclass(reciever.__class__, Action):
-                print(f"event '{message.get_action()}' was sent")
+                #print(f"event '{message.get_action()}' was sent")
                 reciever.do_action(message.get_action())
         except KeyError:
             print(f"Failed to find component with id: {message.get_reciever()}")

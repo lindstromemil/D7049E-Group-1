@@ -18,7 +18,6 @@ class InputListener(Action):
 
     def on_press(self, key):
         MessageHandling().add_message(Message("inputManager", Bullet().id, OnPressed(key)))
-        #Message.send_message("keyPress", key)
         # try:
         #     print('key {0} pressed'.format(key))
         # except AttributeError:
@@ -28,8 +27,8 @@ class InputListener(Action):
         print('{0} released'.format(key))
 
     def on_move(self, x, y):
-        #Message.send_message("mouseMove", [x, y])
-        MessageHandling().add_message(Message("inputManager", Bullet().id, MouseMoved(x, y)))
+        pass
+        #MessageHandling().add_message(Message("inputManager", Bullet().id, MouseMoved(x, y)))
         #print("Mouse moved to ({0} : {1})".format(x, y))
 
     def on_click(self, x, y, button, pressed):
