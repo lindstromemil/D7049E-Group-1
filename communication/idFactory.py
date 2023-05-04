@@ -22,5 +22,6 @@ class IdFactory():
     def get_new_id(self):
         self._lock.acquire()
         self.currentID += 1
+        local_id = self.currentID
         self._lock.release()
-        return self.currentID
+        return local_id

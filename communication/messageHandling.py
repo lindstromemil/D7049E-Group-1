@@ -49,8 +49,10 @@ class MessageHandling():
             if issubclass(reciever.__class__, Action):
                 print(f"event '{message.get_action()}' was sent")
                 reciever.do_action(message.get_action())
-        except:
+        except KeyError:
             print(f"Failed to find component with id: {message.get_reciever()}")
+        except TypeError:
+            print("reciever cannot compare to class Action")
 
     def add_component(self, component: Action):
         if issubclass(component.__class__, Action):
