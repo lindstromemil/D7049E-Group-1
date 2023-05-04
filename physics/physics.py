@@ -3,7 +3,7 @@ import pybullet_data
 import time
 from threading import Thread
 
-from communication.action import Action, OnPressed
+from communication.action import Action, OnPressed, MouseMoved, OnClick
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 
@@ -20,8 +20,8 @@ class Physics(Action):
     def __init__(self):
         if(self.__initialized): return
         super().__init__()
-        self.engine = Thread(target=self.setup, daemon=True)
-        self.engine.start()
+        # self.engine = Thread(target=self.setup, daemon=True)
+        # self.engine.start()
 
     def move_right(self):
         p.resetBaseVelocity(self.boxId, [-1, 0, 0])
@@ -44,11 +44,11 @@ class Physics(Action):
     
     def start(self):
         for i in range(10000000000000):
-            #keys = p.getKeyboardEvents()
-            #if ord('d') in keys:
-                #self.move_right()
-            #if ord('a') in keys:
-                #self.move_left()
+            keys = p.getKeyboardEvents()
+            if ord('d') in keys:
+                self.move_right()
+            if ord('a') in keys:
+                self.move_left()
             p.stepSimulation()
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
@@ -70,6 +70,12 @@ class Physics(Action):
             elif action.key.char == 'd':
                 print('moved right')
                 self.move_right()
+
+        if isinstance(action, MouseMoved):
+            print("Mouse moved to ({0} : {1}) inside physics engine".format(action.xcord, action.ycord))
+
+        elif isinstance(action, OnClick):
+            print("{0} clicked at ({1} : {2}) inside physics engine".format(action.button, action.xcord, action.ycord))
         #print("did action in engine")
 
 

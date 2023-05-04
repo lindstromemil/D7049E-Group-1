@@ -3,6 +3,7 @@ from .message import Message
 from threading import Lock
 from threading import Thread
 from .action import Action
+#import time
 
 class MessageHandling():
     __instance = None
@@ -20,11 +21,12 @@ class MessageHandling():
         self.messages = []
         self.components = dict()
         self._lock = Lock()
-        self.handle_message = Thread(target=self.handle_messages, daemon=True)
-        self.handle_message.start()
+        # self.handle_message = Thread(target=self.handle_messages, daemon=True)
+        # self.handle_message.start()
     
     def handle_messages(self):
         while True:
+            #time.sleep(1./60)
             self._lock.acquire()
             if self.messages:
                 message: Message = self.get_first_message()
