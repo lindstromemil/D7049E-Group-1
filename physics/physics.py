@@ -76,7 +76,6 @@ class Physics(Action):
 
         elif isinstance(action, OnClick):
             print("{0} clicked at ({1} : {2}) inside physics engine".format(action.button, action.xcord, action.ycord))
-        #print("did action in engine")
 
 
 
