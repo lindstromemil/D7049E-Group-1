@@ -3,6 +3,7 @@ from .message import Message
 from threading import Lock
 from threading import Thread
 from .action import Action
+from direct.task import Task
 #import time
 
 class MessageHandling():
@@ -30,6 +31,7 @@ class MessageHandling():
             message: Message = self.get_first_message()
             self.send_message(message)
         self._lock.release()
+        return Task.cont
 
     def add_message(self, message: Message):
         self._lock.acquire()

@@ -3,7 +3,7 @@ import pybullet_data
 import time
 from threading import Thread
 
-from communication.action import Action, OnPressed, MouseMoved, OnClick
+from communication.action import Action, CharacterMove
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
@@ -32,7 +32,8 @@ class Physics(Action):
         p.resetBaseVelocity(self.boxId, [1, 1, 4])
         #p.resetBaseVelocity(boxId, (x, y, z + 4))
 
-    def setup(self, task):
+    def setup(self, renderId):
+        self.renderId = renderId
         self.physicsClient = p.connect(p.GUI)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
@@ -50,7 +51,8 @@ class Physics(Action):
         if ord('a') in keys:
             self.move_left()
         p.stepSimulation()
-        pos, orientation = (p.getBasePositionAndOrientation(self.boxId))
+        pos, _ = (p.getBasePositionAndOrientation(self.boxId))
+        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos[0],pos[1],pos[2])))
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
             #print("Object Position: ", object_pos)

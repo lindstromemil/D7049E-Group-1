@@ -1,6 +1,6 @@
 from math import pi, sin, cos
 
-from communication.action import Action, MouseMoved
+from communication.action import Action, MouseMoved, CharacterMove
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 
@@ -29,9 +29,8 @@ class Render(Action, ShowBase):
         if(self.__initialized): return
         super().__init__()
         
-    def setup(self, renderInstance):
+    def setup(self):
         ShowBase.__init__(self)
-
         # Load the environment model.
         self.scene = self.loader.loadModel("models/environment")
 
@@ -76,6 +75,9 @@ class Render(Action, ShowBase):
         self.heading = -95.0
         self.pitch = 0.0
 
+        self.move_x = 1
+        self.move_z = 1
+
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
         self.accept("escape", sys.exit, [0])
@@ -86,11 +88,12 @@ class Render(Action, ShowBase):
 
 
         self.physics_engine = Physics()
-        self.taskMgr.add(self.physics_engine.setup, "physics-setup-task")
+        self.physics_engine.setup(self.id)
+        #self.taskMgr.add(self.physics_engine.setup, "physics-setup-task")
         self.taskMgr.add(self.physics_engine.start, "physics-start-task")
 
         self.message_handler.add_component(self.physics_engine)
-        self.message_handler.add_component(renderInstance)
+        self.message_handler.add_component(self.__instance)
 
 
     
@@ -140,8 +143,8 @@ class Render(Action, ShowBase):
         #delta = globalClock.getDt()
         #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
         #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        #self.camera.setPos(self.camera, move_x, -move_z, 0)
-        #self.camera.setHpr(self.heading, self.pitch, 0)
+        self.camera.setPos(self.camera, self.move_x, -self.move_z, 0)
+        self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
 
@@ -161,3 +164,8 @@ class Render(Action, ShowBase):
         if isinstance(action, MouseMoved):
             print("Mouse moved to ({0} : {1}) inside render engine".format(action.xcord, action.ycord))
             #self.controlCamera(action.xcord, action.ycord)
+        
+        if isinstance(action, CharacterMove):
+            self.move_x = action.xcord*10
+            self.move_z = action.zcord*10
+            print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))

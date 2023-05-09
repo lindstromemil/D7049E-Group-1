@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 def main():
 
     setup = Render()
-    setup.setup(setup)
+    setup.setup()
     setup.run()
 
     #sound = Sound('audio_module\\Sounds\\')
