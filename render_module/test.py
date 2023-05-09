@@ -18,13 +18,13 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
 
         # Load the environment model.
-        self.scene = self.loader.loadModel("models/floor2.glb")
-        myTexture = self.loader.loadTexture("models/brick-c.jpg")
-        myTexture.setWrapU(myTexture.WM_repeat)
-        cm = CardMaker('card')
-        card = render.attachNewNode(cm.generate())
-        card.setTexture(myTexture)
-        self.scene.setTexture(myTexture)
+        self.scene = self.loader.loadModel("models/environment")
+        # myTexture = self.loader.loadTexture("models/brick-c.jpg")
+        # myTexture.setWrapU(myTexture.WM_repeat)
+        # cm = CardMaker('card')
+        # card = render.attachNewNode(cm.generate())
+        # card.setTexture(myTexture)
+        # self.scene.setTexture(myTexture)
 
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
@@ -33,17 +33,17 @@ class MyApp(ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
-        ralphStartPos = LVector3(0, 0, -1)
-        self.ralph = Actor("models/ralph",
-                           {"run": "models/ralph-run",
-                            "walk": "models/ralph-walk"})
-        self.ralph.reparentTo(render)
-        self.ralph.setScale(1)
-        self.ralph.setPos(ralphStartPos + (0, 0, 0.5))
+        # ralphStartPos = LVector3(0, 0, -1)
+        # self.ralph = Actor("models/ralph",
+        #                    {"run": "models/ralph-run",
+        #                     "walk": "models/ralph-walk"})
+        # self.ralph.reparentTo(render)
+        # self.ralph.setScale(1)
+        # self.ralph.setPos(ralphStartPos + (0, 0, 0.5))
 
-        self.floater = NodePath(PandaNode("floater"))
-        self.floater.reparentTo(self.ralph)
-        self.floater.setZ(2.0)
+        # self.floater = NodePath(PandaNode("floater"))
+        # self.floater.reparentTo(self.ralph)
+        # self.floater.setZ(2.0)
 
         # Post the instructions
         self.inst1 = addInstructions(0.06, "Press ESC to exit")
@@ -81,10 +81,10 @@ class MyApp(ShowBase):
         self.last = 0
         self.mousebtn = [0, 0, 0]
 
-        self.keyMap = {
-            "a": 0, "d": 0, "w": 0, "cam-left": 0, "cam-right": 0}
-        self.camera.setPos(self.ralph.getX(), self.ralph.getY() + 10, 2)
-        self.isMoving = False
+        # self.keyMap = {
+        #     "a": 0, "d": 0, "w": 0, "cam-left": 0, "cam-right": 0}
+        # self.camera.setPos(self.ralph.getX(), self.ralph.getY() + 10, 2)
+        # self.isMoving = False
 
         self.lens = PerspectiveLens()
         self.lens.setFov(60)
@@ -232,9 +232,7 @@ class MyApp(ShowBase):
 
 
         return Task.cont
-    
-    def setMouseBtn(self, btn, value):
-        self.mousebtn[btn] = value
+
 
     def rotateCam(self, offset):
         self.heading = self.heading - offset * 10
