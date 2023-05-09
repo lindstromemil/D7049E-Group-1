@@ -1,25 +1,34 @@
 from pynput.mouse import Listener as MouseListener
-from pynput.keyboard import Listener as KeyboardListener
+
 
 from communication.action import Action, OnClick, OnPressed, MouseMoved
 from communication.messageHandling import MessageHandling
 from communication.message import Message
-from physics.physics import Physics
-from threading import Thread
-import time
+#from physics.physics import Physics
+#from threading import Thread
+#import time
 
 import queue
 
 class InputListener(Action):
-    def __init__(self, physicsId):
+    def __init__(self, physicsId, renderId):
         super().__init__()
         self.physicsId = physicsId
+        self.renderId = renderId
+        self.mouseMoved = None
+        #self.mouseClicked = None
         #self.start()
+
+    def checkInput(self):
+        if self.mouseMoved:
+            MessageHandling().add_message(Message("inputManager", self.renderId, self.mouseMoved))
+            self.mouseMoved = None
 
 
     def on_press(self, key):
         #time.sleep(1./60)
-        MessageHandling().add_message(Message("inputManager", self.physicsId, OnPressed(key)))
+        pass
+        #MessageHandling().add_message(Message("inputManager", self.physicsId, OnPressed(key)))
         #MessageHandling().add_message(Message("inputManager", Bullet().id, OnPressed(key)))
         # try:
         #     print('key {0} pressed'.format(key))
@@ -32,18 +41,21 @@ class InputListener(Action):
 
     def on_move(self, x, y):
         #time.sleep(1)
-        MessageHandling().add_message(Message("inputManager", self.physicsId, MouseMoved(x, y)))
+        self.mouseMoved = MouseMoved(x, y)
+        #MessageHandling().add_message(Message("inputManager", self.renderId, MouseMoved(x, y)))
         #print("Mouse moved to ({0} : {1})".format(x, y))
 
     def on_click(self, x, y, button, pressed):
-        if pressed:
+        pass
+        #if pressed:
             #Message.send_message("mouseClick", [x, y, button])
-            MessageHandling().add_message(Message("inputManager", self.physicsId, OnClick(x, y, button)))
+            #MessageHandling().add_message(Message("inputManager", self.physicsId, OnClick(x, y, button)))
             #print("{0} clicked at ({1} : {2})".format(button, x, y))
 
     def on_scroll(self, x, y, dx, dy):
         #time.sleep(1./60)
-        print("Mouse scrolled at ({0} : {1}) ({2} : {3})".format(x, y, dx, dy))
+        pass
+        #print("Mouse scrolled at ({0} : {1}) ({2} : {3})".format(x, y, dx, dy))
 
 
     # def start(self):
@@ -58,7 +70,7 @@ class InputListener(Action):
         mouse_listener = MouseListener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll)
         print("Mouse Listener setup complete")
         mouse_listener.start()
-        mouse_listener.join()
+        #mouse_listener.join()
 
     def keyboard(self):
         print("Starting Keyboard Listener.....")

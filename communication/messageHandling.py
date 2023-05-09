@@ -24,14 +24,12 @@ class MessageHandling():
         # self.handle_message = Thread(target=self.handle_messages, daemon=True)
         # self.handle_message.start()
     
-    def handle_messages(self):
-        while True:
-            #time.sleep(1./60)
-            self._lock.acquire()
-            if self.messages:
-                message: Message = self.get_first_message()
-                self.send_message(message)
-            self._lock.release()
+    def handle_messages(self, task):
+        self._lock.acquire()
+        if self.messages:
+            message: Message = self.get_first_message()
+            self.send_message(message)
+        self._lock.release()
 
     def add_message(self, message: Message):
         self._lock.acquire()

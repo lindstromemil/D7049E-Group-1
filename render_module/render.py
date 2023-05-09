@@ -1,6 +1,11 @@
 from math import pi, sin, cos
 
 from communication.action import Action, MouseMoved
+from communication.messageHandling import MessageHandling
+from communication.message import Message
+
+from input_module.inputManager import InputListener
+from physics.physics import Physics
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -23,6 +28,8 @@ class Render(Action, ShowBase):
     def __init__(self):
         if(self.__initialized): return
         super().__init__()
+        
+    def setup(self, renderInstance):
         ShowBase.__init__(self)
 
         # Load the environment model.
@@ -49,7 +56,7 @@ class Render(Action, ShowBase):
         self.win.requestProperties(props)
         self.camLens.setFov(60)
         self.accept('escape', __import__('sys').exit, [0])
-        self.disableMouse()
+        #self.disableMouse()
 
         # Set the current viewing target
         self.focus = LVector3(55, -55, 20)
@@ -70,8 +77,21 @@ class Render(Action, ShowBase):
         self.pitch = 0.0
 
         # Start the camera control task:
-        # self.taskMgr.add(self.controlCamera, "camera-task")
+        self.taskMgr.add(self.controlCamera, "camera-task")
         self.accept("escape", sys.exit, [0])
+
+        self.message_handler = MessageHandling()
+        self.taskMgr.add(self.message_handler.handle_messages, "messasge-task")
+        #self.taskMgr.add(self.message_handler.handle_messages, "message-task")
+
+
+        self.physics_engine = Physics()
+        self.taskMgr.add(self.physics_engine.setup, "physics-setup-task")
+        self.taskMgr.add(self.physics_engine.start, "physics-start-task")
+
+        self.message_handler.add_component(self.physics_engine)
+        self.message_handler.add_component(renderInstance)
+
 
     
     def setEnvironmentModel(self, path):
@@ -88,11 +108,11 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
-    def controlCamera(self, x, y):
+    def controlCamera(self, task):
         # figure out how much the mouse has moved (in pixels)
-        #md = self.win.getPointer(0)
-        #x = md.getX()
-        #y = md.getY()
+        md = self.win.getPointer(0)
+        x = md.getX()
+        y = md.getY()
         if self.win.movePointer(0, 100, 100):
             self.heading = self.heading - (x - 100) * 0.2
             self.pitch = self.pitch - (y - 100) * 0.2
@@ -117,11 +137,11 @@ class Render(Action, ShowBase):
         self.focus = self.camera.getPos() + (dir * 5)
         self.last = task.time
 
-        delta = globalClock.getDt()
-        # move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
-        # move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        # self.camera.setPos(self.camera, move_x, -move_z, 0)
-        # self.camera.setHpr(self.heading, self.pitch, 0)
+        #delta = globalClock.getDt()
+        #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
+        #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
+        #self.camera.setPos(self.camera, move_x, -move_z, 0)
+        #self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
 
@@ -138,4 +158,6 @@ class Render(Action, ShowBase):
                         pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
 
     def do_action(self, action):
-        return super().do_action(action)
+        if isinstance(action, MouseMoved):
+            print("Mouse moved to ({0} : {1}) inside render engine".format(action.xcord, action.ycord))
+            #self.controlCamera(action.xcord, action.ycord)

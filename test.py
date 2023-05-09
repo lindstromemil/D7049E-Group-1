@@ -7,50 +7,61 @@ from communication.bullet import Bullet
 from audio_module.audioHandeler import Sound
 from input_module.inputManager import InputListener
 from physics.physics import Physics
-import threading
+from render_module.render import Render
 
 from concurrent.futures import ThreadPoolExecutor
 
+
 def main():
 
-    message_handler = MessageHandling()
-
-    messaging_pool = ThreadPoolExecutor()
-    messaging_pool.submit(message_handler.handle_messages)
-
-    logger = logging.getLogger()
-
-
-    bullet = Bullet()
+    setup = Render()
+    setup.setup(setup)
+    setup.run()
 
     #sound = Sound('audio_module\\Sounds\\')
     #message_handler.add_component(sound)
 
-    physics_engine = Physics()
+#     message_handler = MessageHandling()
 
-    physics_pool = ThreadPoolExecutor()
-    physics_pool.submit(physics_engine.setup)
+#     messaging_pool = ThreadPoolExecutor()
+#     messaging_pool.submit(message_handler.handle_messages)
 
-    input_manager = InputListener(physics_engine.id)
+#     physics_engine = Physics()
 
-    listner_pool = ThreadPoolExecutor()
-    listner_pool.submit(input_manager.mouse)
-    #listner_pool.submit(input_manager.keyboard)
+#     #physics_pool = ThreadPoolExecutor()
+#     #physics_pool.submit(physics_engine.setup)
+#     messaging_pool.submit(physics_engine.setup)
 
-    message_handler.add_component(bullet)
-    message_handler.add_component(input_manager)
-    message_handler.add_component(physics_engine)
+#     render_engine = Render()
+#     #messaging_pool.submit(render_engine.setup)
+#     #messaging_pool.submit(render_engine.run)
+#     #render_engine.run()
+
+#     input_manager = InputListener(physics_engine.id, render_engine.id)
+#     #input_manager = InputListener(physics_engine.id, 1000000000)
+
+#     #listner_pool = ThreadPoolExecutor()
+#     messaging_pool.submit(input_manager.mouse)
+
+#     message_handler.add_component(input_manager)
+#     message_handler.add_component(physics_engine)
+#     message_handler.add_component(render_engine)
 
 
-    #physicsEngine.start()
-    
-    #message = Message("object", sound.id, "explode")
-    #while True:
-        #pass
-        #logger.info("hej")
-        #time.sleep(1)
-        #message_handler.add_message(message)
+#     messaging_pool.submit(loop, (physics_engine, input_manager))
 
+#     render_engine.setup()
+#     render_engine.run()
+
+
+# def loop(physics_engine: Physics, input_manager: InputListener):
+#     while True:
+#         start = time.time()
+#         #physics_engine.start()
+#         physics_engine.start
+#         input_manager.checkInput
+#         print(max(1./60 - (time.time() - start), 0))
+#         time.sleep(max(1./240 - (time.time() - start), 0))
 
 if __name__ == "__main__":
     main()

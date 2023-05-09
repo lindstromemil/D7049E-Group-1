@@ -6,6 +6,7 @@ from threading import Thread
 from communication.action import Action, OnPressed, MouseMoved, OnClick
 from communication.message import Message
 from communication.messageHandling import MessageHandling
+from direct.task import Task
 
 class Physics(Action):
     __instance = None
@@ -31,7 +32,7 @@ class Physics(Action):
         p.resetBaseVelocity(self.boxId, [1, 1, 4])
         #p.resetBaseVelocity(boxId, (x, y, z + 4))
 
-    def setup(self):
+    def setup(self, task):
         self.physicsClient = p.connect(p.GUI)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
@@ -39,28 +40,29 @@ class Physics(Action):
         self.startPos = [0, 0, 1]
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
         self.boxId = p.loadURDF("r2d2.urdf", self.startPos, self.startOrientation)
-        self.start()
+        #self.start()
 
     
-    def start(self):
-        for i in range(10000000000000):
-            keys = p.getKeyboardEvents()
-            if ord('d') in keys:
-                self.move_right()
-            if ord('a') in keys:
-                self.move_left()
-            p.stepSimulation()
+    def start(self, task):
+        keys = p.getKeyboardEvents()
+        if ord('d') in keys:
+            self.move_right()
+        if ord('a') in keys:
+            self.move_left()
+        p.stepSimulation()
+        pos, orientation = (p.getBasePositionAndOrientation(self.boxId))
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
             #print("Object Position: ", object_pos)
             #print("Object Orientation: ", object_ori)
             #print("Plane Position: ", plane_pos)
             #print("Plane Orientation: ", plane_ori)
-            if (i % 240 == 0):
-                # boxId = p.loadURDF("r2d2.urdf", startPos, startOrientation)
-                pass
-            time.sleep(1./240)
-        p.disconnect()
+        #if (i % 240 == 0):
+            # boxId = p.loadURDF("r2d2.urdf", startPos, startOrientation)
+            #pass
+        time.sleep(1./240)
+        #p.disconnect()
+        return Task.cont
 
     def do_action(self, action):
         if isinstance(action, OnPressed):
