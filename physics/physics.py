@@ -24,34 +24,50 @@ class Physics(Action):
         # self.engine = Thread(target=self.setup, daemon=True)
         # self.engine.start()
 
-    def move_right(self):
-        p.resetBaseVelocity(self.boxId, [-1, 0, 0])
+    def move_foward(self):
+        p.resetBaseVelocity(self.boxId, [0, 2, 0])
 
     def move_left(self):
         #(x, y, z)=p.getBaseVelocity(boxId)
-        p.resetBaseVelocity(self.boxId, [1, 1, 4])
+        p.resetBaseVelocity(self.boxId, [-2, 0, 0])
         #p.resetBaseVelocity(boxId, (x, y, z + 4))
+
+    def move_backward(self):
+        p.resetBaseVelocity(self.boxId, [0, -2, 0])
+
+    def move_right(self):
+        p.resetBaseVelocity(self.boxId, [2, 0, 0])
+
+    def move_jump(self):
+        p.resetBaseVelocity(self.boxId, [0, 0, 4])
 
     def setup(self, renderId):
         self.renderId = renderId
         self.physicsClient = p.connect(p.GUI)
-        p.setGravity(0, 0, -10)
+        p.setGravity(0, 0, -20)
         p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
         self.planeId = p.loadURDF("plane.urdf")
         self.startPos = [0, 0, 1]
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
-        self.boxId = p.loadURDF("r2d2.urdf", self.startPos, self.startOrientation)
+        self.boxId = p.loadURDF("cube.urdf", self.startPos, self.startOrientation)
         #self.start()
 
     
     def start(self, task):
         keys = p.getKeyboardEvents()
-        if ord('d') in keys:
-            self.move_right()
+        pos, _ = (p.getBasePositionAndOrientation(self.boxId))
+        if ord('w') in keys:
+            self.move_foward()
         if ord('a') in keys:
             self.move_left()
+        if ord('s') in keys:
+            self.move_backward()
+        if ord('d') in keys:
+            self.move_right()
+        if ord(' ') in keys:
+            if pos[2] < 0.5:
+                self.move_jump()
         p.stepSimulation()
-        pos, _ = (p.getBasePositionAndOrientation(self.boxId))
         MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos[0],pos[1],pos[2])))
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
@@ -62,7 +78,7 @@ class Physics(Action):
         #if (i % 240 == 0):
             # boxId = p.loadURDF("r2d2.urdf", startPos, startOrientation)
             #pass
-        time.sleep(1./240)
+        #time.sleep(1./240)
         #p.disconnect()
         return Task.cont
 

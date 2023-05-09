@@ -76,6 +76,7 @@ class Render(Action, ShowBase):
         self.pitch = 0.0
 
         self.move_x = 1
+        self.move_y = 1
         self.move_z = 1
 
         # Start the camera control task:
@@ -143,7 +144,7 @@ class Render(Action, ShowBase):
         #delta = globalClock.getDt()
         #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
         #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        self.camera.setPos(self.camera, self.move_x, -self.move_z, 0)
+        self.camera.setPos(self.camera, self.move_x, self.move_y, self.move_z)
         self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
@@ -167,5 +168,6 @@ class Render(Action, ShowBase):
         
         if isinstance(action, CharacterMove):
             self.move_x = action.xcord*10
+            self.move_y = action.ycord*10
             self.move_z = action.zcord*10
             print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))
