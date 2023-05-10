@@ -15,8 +15,9 @@ class Action():
 
 # Input Manager
 class OnPressed():
-    def __init__(self, key):
+    def __init__(self, key, value):
         self.key = key
+        self.value = value
 
 class OnClick():
     def __init__(self, xcord, ycord, button):
@@ -28,3 +29,9 @@ class MouseMoved():
     def __init__(self, xcord, ycord):
         self.xcord = xcord
         self.ycord = ycord
+
+class CharacterMove():
+    def __init__(self, xcord, ycord, zcord):
+        self.xcord = xcord
+        self.ycord = ycord
+        self.zcord = zcord

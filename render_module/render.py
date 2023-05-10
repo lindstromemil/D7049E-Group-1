@@ -1,6 +1,11 @@
 from math import pi, sin, cos
 
-from communication.action import Action, MouseMoved
+from communication.action import Action, OnPressed, CharacterMove
+from communication.messageHandling import MessageHandling
+from communication.message import Message
+
+from input_module.inputManager import InputListener
+from physics.physics import Physics
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -23,8 +28,9 @@ class Render(Action, ShowBase):
     def __init__(self):
         if(self.__initialized): return
         super().__init__()
+        
+    def setup(self):
         ShowBase.__init__(self)
-
         # Load the environment model.
         self.scene = self.loader.loadModel("models/environment")
 
@@ -48,6 +54,14 @@ class Render(Action, ShowBase):
         props.setCursorHidden(True)
         self.win.requestProperties(props)
         self.camLens.setFov(60)
+
+        # Setup controls
+        self.keys = {}
+        for key in ['a', 'd', 'w', 's', ' ']:
+            self.keys[key] = 0
+            self.accept(key, self.push_key, [key, 1])
+            self.accept('shift-%s' % key, self.push_key, [key, 1])
+            self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept('escape', __import__('sys').exit, [0])
         self.disableMouse()
 
@@ -69,9 +83,28 @@ class Render(Action, ShowBase):
         self.heading = -95.0
         self.pitch = 0.0
 
+        self.move_x = 1
+        self.move_y = 1
+        self.move_z = 1
+
         # Start the camera control task:
-        # self.taskMgr.add(self.controlCamera, "camera-task")
+        self.taskMgr.add(self.controlCamera, "camera-task")
         self.accept("escape", sys.exit, [0])
+
+        self.message_handler = MessageHandling()
+        self.taskMgr.add(self.message_handler.handle_messages, "messasge-task")
+        #self.taskMgr.add(self.message_handler.handle_messages, "message-task")
+
+
+        self.physics_engine = Physics()
+        self.physics_engine.setup(self.id)
+        self.physics_id = self.physics_engine.id
+        #self.taskMgr.add(self.physics_engine.setup, "physics-setup-task")
+        self.taskMgr.add(self.physics_engine.start, "physics-start-task")
+
+        self.message_handler.add_component(self.physics_engine)
+        self.message_handler.add_component(self.__instance)
+
 
     
     def setEnvironmentModel(self, path):
@@ -88,11 +121,11 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
-    def controlCamera(self, x, y):
+    def controlCamera(self, task):
         # figure out how much the mouse has moved (in pixels)
-        #md = self.win.getPointer(0)
-        #x = md.getX()
-        #y = md.getY()
+        md = self.win.getPointer(0)
+        x = md.getX()
+        y = md.getY()
         if self.win.movePointer(0, 100, 100):
             self.heading = self.heading - (x - 100) * 0.2
             self.pitch = self.pitch - (y - 100) * 0.2
@@ -117,11 +150,11 @@ class Render(Action, ShowBase):
         self.focus = self.camera.getPos() + (dir * 5)
         self.last = task.time
 
-        delta = globalClock.getDt()
-        # move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
-        # move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        # self.camera.setPos(self.camera, move_x, -move_z, 0)
-        # self.camera.setHpr(self.heading, self.pitch, 0)
+        #delta = globalClock.getDt()
+        #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
+        #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
+        self.camera.setPos(self.camera, self.move_x, self.move_y, self.move_z)
+        self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
 
@@ -136,6 +169,19 @@ class Render(Action, ShowBase):
         return OnscreenText(text=text, style=1, fg=(1, 1, 1, 1), scale=.08,
                         parent=base.a2dBottomRight, align=TextNode.ARight,
                         pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
+    
+    def push_key(self, key, value):
+        """Stores a value associated with a key."""
+        MessageHandling().add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
+        #self.keys[key] = value
 
     def do_action(self, action):
-        return super().do_action(action)
+        # if isinstance(action, MouseMoved):
+        #     print("Mouse moved to ({0} : {1}) inside render engine".format(action.xcord, action.ycord))
+        #     #self.controlCamera(action.xcord, action.ycord)
+        
+        if isinstance(action, CharacterMove):
+            self.move_x = action.xcord*10
+            self.move_y = action.ycord*10
+            self.move_z = action.zcord*10
+            #print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))
