@@ -1,6 +1,6 @@
 from math import pi, sin, cos
 
-from communication.action import Action, MouseMoved, CharacterMove
+from communication.action import Action, OnPressed, CharacterMove
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 
@@ -54,8 +54,16 @@ class Render(Action, ShowBase):
         props.setCursorHidden(True)
         self.win.requestProperties(props)
         self.camLens.setFov(60)
+
+        # Setup controls
+        self.keys = {}
+        for key in ['a', 'd', 'w', 's', ' ']:
+            self.keys[key] = 0
+            self.accept(key, self.push_key, [key, 1])
+            self.accept('shift-%s' % key, self.push_key, [key, 1])
+            self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept('escape', __import__('sys').exit, [0])
-        #self.disableMouse()
+        self.disableMouse()
 
         # Set the current viewing target
         self.focus = LVector3(55, -55, 20)
@@ -90,6 +98,7 @@ class Render(Action, ShowBase):
 
         self.physics_engine = Physics()
         self.physics_engine.setup(self.id)
+        self.physics_id = self.physics_engine.id
         #self.taskMgr.add(self.physics_engine.setup, "physics-setup-task")
         self.taskMgr.add(self.physics_engine.start, "physics-start-task")
 
@@ -160,14 +169,19 @@ class Render(Action, ShowBase):
         return OnscreenText(text=text, style=1, fg=(1, 1, 1, 1), scale=.08,
                         parent=base.a2dBottomRight, align=TextNode.ARight,
                         pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
+    
+    def push_key(self, key, value):
+        """Stores a value associated with a key."""
+        MessageHandling().add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
+        #self.keys[key] = value
 
     def do_action(self, action):
-        if isinstance(action, MouseMoved):
-            print("Mouse moved to ({0} : {1}) inside render engine".format(action.xcord, action.ycord))
-            #self.controlCamera(action.xcord, action.ycord)
+        # if isinstance(action, MouseMoved):
+        #     print("Mouse moved to ({0} : {1}) inside render engine".format(action.xcord, action.ycord))
+        #     #self.controlCamera(action.xcord, action.ycord)
         
         if isinstance(action, CharacterMove):
             self.move_x = action.xcord*10
             self.move_y = action.ycord*10
             self.move_z = action.zcord*10
-            print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))
+            #print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))
