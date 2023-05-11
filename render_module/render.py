@@ -33,7 +33,7 @@ class Render(Action, ShowBase):
         ShowBase.__init__(self)
         # Load the environment model.
         self.scene = self.loader.loadModel("models/environment")
-
+        
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
 
@@ -105,6 +105,10 @@ class Render(Action, ShowBase):
         self.message_handler.add_component(self.physics_engine)
         self.message_handler.add_component(self.__instance)
 
+        self.objectRoot = self.render.attachNewNode("objectRoot")
+        self.createObject("render_module/models/floor4.glb", "render_module/models/brick-c.jpg", LVector3(5,5,2), 0.5)
+        self.createObject("render_module/models/floor.glb", "render_module/models/brick-c.jpg", LVector3(-5,-5,2), 0.5)
+
 
     
     def setEnvironmentModel(self, path):
@@ -121,8 +125,18 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
+    def createObject(self, objectPath, texturePath, lvector3,size):
+        newObject = self.loader.loadModel(objectPath)
+        newObject.reparentTo(self.objectRoot)
+        newObject.setScale(size)
+        newObject.setPos(lvector3)
+        myTexture = self.loader.loadTexture(texturePath)
+        myTexture.setWrapU(myTexture.WM_repeat)
+        newObject.setTexture(myTexture)
+
     def controlCamera(self, task):
         # figure out how much the mouse has moved (in pixels)
+        box = 200
         md = self.win.getPointer(0)
         x = md.getX()
         y = md.getY()
@@ -135,14 +149,14 @@ class Render(Action, ShowBase):
             self.pitch = 45
         self.camera.setHpr(self.heading, self.pitch, 0)
         dir = self.camera.getMat().getRow3(1)
-        if self.camera.getX() < -20.0:
-            self.camera.setX(-20)
-        if self.camera.getX() > 20.0:
-            self.camera.setX(20)
-        if self.camera.getY() < -20.0:
-            self.camera.setY(-20)
-        if self.camera.getY() > 20.0:
-            self.camera.setY(20)
+        if self.camera.getX() < -box:
+            self.camera.setX(-box)
+        if self.camera.getX() > box:
+            self.camera.setX(box)
+        if self.camera.getY() < -box:
+            self.camera.setY(-box)
+        if self.camera.getY() > box:
+            self.camera.setY(box)
         if self.camera.getZ() < 5.0:
             self.camera.setZ(5)
         if self.camera.getZ() > 5.0:
@@ -150,10 +164,10 @@ class Render(Action, ShowBase):
         self.focus = self.camera.getPos() + (dir * 5)
         self.last = task.time
 
-        #delta = globalClock.getDt()
-        #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
-        #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        self.camera.setPos(self.camera, self.move_x, self.move_y, self.move_z)
+        delta = globalClock.getDt()
+        move_x = delta * 100 * -self.keys['a'] + delta * 100 * self.keys['d']
+        move_z = delta * 100 * self.keys['s'] + delta * 100 * -self.keys['w']
+        self.camera.setPos(self.camera, move_x, -move_z, 0)
         self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
@@ -173,7 +187,7 @@ class Render(Action, ShowBase):
     def push_key(self, key, value):
         """Stores a value associated with a key."""
         MessageHandling().add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
-        #self.keys[key] = value
+        self.keys[key] = value
 
     def do_action(self, action):
         # if isinstance(action, MouseMoved):
@@ -181,7 +195,7 @@ class Render(Action, ShowBase):
         #     #self.controlCamera(action.xcord, action.ycord)
         
         if isinstance(action, CharacterMove):
-            self.move_x = action.xcord*10
-            self.move_y = action.ycord*10
-            self.move_z = action.zcord*10
+            self.move_x = action.xcord*100
+            self.move_y = action.ycord*100
+            self.move_z = action.zcord*100
             #print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))

@@ -98,6 +98,18 @@ class MyApp(ShowBase):
         self.taskMgr.add(self.controlCamera, "camera-task")
         self.accept("escape", sys.exit, [0])
 
+        self.objectRoot = render.attachNewNode("objectRoot")
+        def createObject(objectPath, texturePath, lvector3,size):
+            newObject = self.loader.loadModel(objectPath)
+            newObject.reparentTo(self.objectRoot)
+            newObject.setScale(size)
+            newObject.setPos(lvector3)
+            myTexture = self.loader.loadTexture(texturePath)
+            myTexture.setWrapU(myTexture.WM_repeat)
+            newObject.setTexture(myTexture)
+        createObject("models/panda-model", "models/brick-c.jpg",LVector3(5,5,2),0.001)
+        #createObject("models/floor4.glb", "models/brick-c.jpg",LVector3(-5,-5,2),0.1)
+
         def spawnpanda(aX,aY,aZ,bX,bY,bZ):
             # Load and transform the panda actor.
             self.pandaActor = Actor("models/panda-model",
