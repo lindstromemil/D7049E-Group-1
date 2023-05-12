@@ -74,8 +74,10 @@ class Physics(Action):
         #     if pos[2] < 0.5:
         #         self.move_jump()
         p.stepSimulation()
-        pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
-        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
+        #pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
+        #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
+        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
+
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
             #print("Object Position: ", object_pos)

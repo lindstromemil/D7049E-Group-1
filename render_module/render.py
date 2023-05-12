@@ -41,6 +41,16 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
+        ralphStartPos = LVector3(0, 0, -1)
+        self.ralph = Actor("render_module/models/ralph")
+        self.ralph.reparentTo(render)
+        self.ralph.setScale(1)
+        self.ralph.setPos(ralphStartPos + (0, 0, 0.5))
+
+        self.floater = NodePath(PandaNode("floater"))
+        self.floater.reparentTo(self.ralph)
+        self.floater.setZ(2.0)
+
         # Post the instructions
         self.inst1 = self.addInstructions(0.06, "Press ESC to exit")
         self.inst2 = self.addInstructions(0.12, "Move mouse to rotate camera")
@@ -151,13 +161,32 @@ class Render(Action, ShowBase):
         self.focus = self.camera.getPos() + (dir * 5)
         self.last = task.time
 
+        pos = self.ralph.getPos()
+
+        self.ralph.setH(self.move_z)
+        self.ralph.setY(self.move_y)
+        self.ralph.setX(self.move_x)
+
+        # camvec = self.ralph.getPos() - self.camera.getPos()
+        # camvec.setZ(0)
+        # camdist = camvec.length()
+        # camvec.normalize()
+        # if camdist > 10.0:
+        #     self.camera.setPos(self.camera.getPos() + camvec * (camdist - 10))
+        #     camdist = 10.0
+        # if camdist < 5.0:
+        #     self.camera.setPos(self.camera.getPos() - camvec * (5 - camdist))
+        #     camdist = 5.0
+
+        self.camera.lookAt(self.floater)
+
         #delta = globalClock.getDt()
         #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
         #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
         #pos = self.camera.getPos()
         #self.camera.setPos(self.camera, move_x, -move_z, 0)
-        self.camera.setPos(self.camera, -self.move_x, -self.move_y, -self.move_z)
-        self.camera.setHpr(self.heading, self.pitch, 0)
+        #self.camera.setPos(self.camera, -self.move_x, -self.move_y, -self.move_z)
+        #self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
 
