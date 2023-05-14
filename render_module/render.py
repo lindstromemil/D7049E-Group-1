@@ -37,6 +37,10 @@ class Render(Action, ShowBase):
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
 
+
+        ####### DUM SKIT
+        self.setFrameRateMeter(True)
+
         # Apply scale and position transforms on the model.
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
@@ -73,7 +77,7 @@ class Render(Action, ShowBase):
             self.accept('shift-%s' % key, self.push_key, [key, 1])
             self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept('escape', __import__('sys').exit, [0])
-        self.disableMouse()
+        #self.disableMouse()
 
         # Set the current viewing target
         self.focus = LVector3(55, -55, 20)
