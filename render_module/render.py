@@ -4,13 +4,11 @@ from communication.action import Action, OnPressed, CharacterMove
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 
-from input_module.inputManager import InputListener
-from physics.physics import Physics
+from physics_module.physics import Physics
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from direct.actor.Actor import Actor
-from direct.interval.IntervalGlobal import Sequence
 import sys
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode
