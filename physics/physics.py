@@ -8,13 +8,11 @@ from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
 
-# TODO: SET NEW TIMESTEP FOR STEPS
-# TODO: Generate objects from function
-# TODO: List of objects
-# TODO: Clean up code
+# TODO: SET NEW TIMESTEP FOR STEPS (Timestep that fits with render)
+# TODO: Generate objects from function ish done
+# TODO: List of objects ish done
 # TODO: Lookup how to work with urdfs
-# TODO: Timestep that fits with render
-# TODO: Make non jumpable when in air
+# TODO: Be able to move other objects
 
 
 class Physics(Action):
@@ -30,17 +28,15 @@ class Physics(Action):
     def __init__(self):
         if(self.__initialized): return
         super().__init__()
-        # self.engine = Thread(target=self.setup, daemon=True)
-        # self.engine.start()
 
 
     # Add customPos and orientation as arguments. Make object argurment instead of set to r2d2
-    def generateObject(self, object="r2d2"):
-        self.startPos = [0, 0, 1]
-        self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
-        self.boxId = p.loadURDF("cube.urdf", self.startPos, self.startOrientation)
+    def generateObject(self, object="cube", pos = [0,0,1], orientation = [0, 0, 0]):
+        orientation = p.getQuaternionFromEuler(orientation)
+        self.boxId = p.loadURDF(object + ".urdf", pos, orientation)
         self.collection.append(self.boxId)
 
+    # Called every update and checks which keys are in use
     def move(self):
         #p.resetBaseVelocity(self.boxId, [-self.keys['a']+self.keys['d'], -self.keys['s']+self.keys['w'], 2*self.keys[' ']])
 
@@ -54,7 +50,10 @@ class Physics(Action):
 
         currentVelocity[0] += (-self.keys['a']+self.keys['d']) * acceleration
         currentVelocity[1] += (-self.keys['s']+self.keys['w']) * acceleration
-        currentVelocity[2] += 4*self.keys['space'] * acceleration
+        if len(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId)) > 0:
+            currentVelocity[2] += 100*self.keys['space'] * acceleration
+
+        print(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId))
 
         for i in range(3):
             if currentVelocity[i] > maxVelocity:
@@ -63,7 +62,8 @@ class Physics(Action):
                 currentVelocity[i] = minVelocity
 
         p.resetBaseVelocity(self.boxId, currentVelocity)
-        #print(p.getBaseVelocity(self.boxId))
+        
+        print(p.getBaseVelocity(self.boxId))
 
 
     def setup(self, renderId):
@@ -71,8 +71,8 @@ class Physics(Action):
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
         self.physicsClient = p.connect(p.GUI)
-        p.setGravity(0, 0, -20)
-        p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
+        p.setGravity(0, 0, -10)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.planeId = p.loadURDF("plane.urdf")
         self.startPos = [0, 0, 1]
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
@@ -90,25 +90,9 @@ class Physics(Action):
         #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
 
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
-            #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
-            #print("Object Position: ", object_pos)
-            #print("Object Orientation: ", object_ori)
-            #print("Plane Position: ", plane_pos)
-            #print("Plane Orientation: ", plane_ori)
-        #if (i % 240 == 0):
-            # boxId = p.loadURDF("r2d2.urdf", startPos, startOrientation)
-            #pass
-        #time.sleep(1./240)
-        #p.disconnect()
         return Task.cont
 
     def do_action(self, action):
         if isinstance(action, OnPressed):
             print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self.keys[action.key] = action.value
-
-        # if isinstance(action, MouseMoved):
-        #     print("Mouse moved to ({0} : {1}) inside physics engine".format(action.xcord, action.ycord))
-
-        # elif isinstance(action, OnClick):
-        #     print("{0} clicked at ({1} : {2}) inside physics engine".format(action.button, action.xcord, action.ycord))
