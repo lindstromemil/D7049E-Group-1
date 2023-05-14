@@ -41,7 +41,7 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
-        ralphStartPos = LVector3(0, 0, -1)
+        ralphStartPos = LVector3(0, 0, 20)
         self.ralph = Actor("render_module/models/ralph")
         self.ralph.reparentTo(render)
         self.ralph.setScale(1)
@@ -115,6 +115,10 @@ class Render(Action, ShowBase):
         self.message_handler.add_component(self.physics_engine)
         self.message_handler.add_component(self.__instance)
 
+        wp = WindowProperties()
+        wp.setSize(1920, 1080)
+        base.win.requestProperties(wp)
+
 
     
     def setEnvironmentModel(self, path):
@@ -144,7 +148,7 @@ class Render(Action, ShowBase):
             self.pitch = -45
         if self.pitch > 45:
             self.pitch = 45
-        #self.camera.setHpr(self.heading, self.pitch, 0)
+        self.camera.setHpr(self.heading, self.pitch, 0)
         dir = self.camera.getMat().getRow3(1)
         if self.camera.getX() < -box:
             self.camera.setX(-box)
@@ -160,25 +164,16 @@ class Render(Action, ShowBase):
         #     self.camera.setZ(5)
         self.focus = self.camera.getPos() + (dir * 5)
         self.last = task.time
+        #self.camera.setHpr(self.heading, self.pitch, 0)
 
-        pos = self.ralph.getPos()
+        #pos = self.ralph.getPos()
 
-        self.ralph.setH(self.move_z)
-        self.ralph.setY(self.move_y)
-        self.ralph.setX(self.move_x)
+        self.ralph.setH(self.heading+180)
+        self.ralph.setZ(self.ralph, -self.move_z)
+        self.ralph.setY(self.ralph, self.move_y)
+        self.ralph.setX(self.ralph, self.move_x)
 
-        # camvec = self.ralph.getPos() - self.camera.getPos()
-        # camvec.setZ(0)
-        # camdist = camvec.length()
-        # camvec.normalize()
-        # if camdist > 10.0:
-        #     self.camera.setPos(self.camera.getPos() + camvec * (camdist - 10))
-        #     camdist = 10.0
-        # if camdist < 5.0:
-        #     self.camera.setPos(self.camera.getPos() - camvec * (5 - camdist))
-        #     camdist = 5.0
-
-        self.camera.lookAt(self.floater)
+        self.camera.setPos(self.ralph.getPos() - LVector3(0, 0, -6))
 
         #delta = globalClock.getDt()
         #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
@@ -213,7 +208,7 @@ class Render(Action, ShowBase):
         #     #self.controlCamera(action.xcord, action.ycord)
         
         if isinstance(action, CharacterMove):
-            self.move_x = action.xcord*100
-            self.move_y = action.ycord*100
-            self.move_z = action.zcord*100
+            self.move_x = action.xcord*20
+            self.move_y = action.ycord*20
+            self.move_z = action.zcord*40
             #print("character moved to ({0} : {1} : {2}) inside render engine".format(action.xcord, action.ycord, action.zcord))

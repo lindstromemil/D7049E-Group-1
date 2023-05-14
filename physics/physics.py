@@ -48,8 +48,8 @@ class Physics(Action):
     def setup(self, renderId):
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
-        self.physicsClient = p.connect(p.GUI)
-        p.setGravity(0, 0, -20)
+        self.physicsClient = p.connect(p.DIRECT)
+        p.setGravity(0, 0, -100)
         p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
         self.planeId = p.loadURDF("plane.urdf")
         self.startPos = [0, 0, 1]
@@ -74,9 +74,9 @@ class Physics(Action):
         #     if pos[2] < 0.5:
         #         self.move_jump()
         p.stepSimulation()
-        #pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
-        #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
-        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
+        pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
+        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
+        #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
 
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
             #plane_pos, plane_ori = p.getBasePositionAndOrientation(self.planeId)
