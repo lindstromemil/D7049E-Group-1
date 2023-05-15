@@ -6,7 +6,7 @@ from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence
 import sys
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode
+from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
 #necessary installation in order to run glb files in panda
 #python -m pip install -U panda3d-gltf
@@ -25,6 +25,11 @@ class MyApp(ShowBase):
         # card = render.attachNewNode(cm.generate())
         # card.setTexture(myTexture)
         # self.scene.setTexture(myTexture)
+
+        self.clock = ClockObject.get_global_clock()
+        self.clock.setMode(ClockObject.MLimited)
+        self.clock.setFrameRate(60)
+        self.setFrameRateMeter(True)
 
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
@@ -229,10 +234,14 @@ class MyApp(ShowBase):
         #     camdist = 5.0
 
         # self.camera.lookAt(self.floater)
-
+        if(x != 0 or y != 0):
+            self.taskMgr.add(self.dum, "dum-task")
 
         return Task.cont
 
+    def dum(self, task):
+        print("hej")
+        self.last = task.time
 
     def rotateCam(self, offset):
         self.heading = self.heading - offset * 10

@@ -117,7 +117,7 @@ class Physics(Action):
         self.collection = []                                    # List of all objects
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
-        self.physicsClient = p.connect(p.GUI)
+        self.physicsClient = p.connect(p.DIRECT)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.planeId = p.loadURDF("plane.urdf")
@@ -140,6 +140,11 @@ class Physics(Action):
 
             #object_pos, object_ori = p.getBasePositionAndOrientation(self.boxId)
         return Task.cont
+
+    # def do_action(self, action):
+    #     if isinstance(action, OnPressed):
+    #         print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
+    #         self.keys[action.key] = action.value
 
     def do_action(self, action):
         if isinstance(action, OnPressed):

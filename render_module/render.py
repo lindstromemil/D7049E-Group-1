@@ -38,7 +38,7 @@ class Render(Action, ShowBase):
         self.scene.reparentTo(self.render)
 
 
-        # Set and show framerate
+        # Sets the clockrate/framerate and shows framerate
         self.setFrameRateMeter(True)
         self.clock = ClockObject.get_global_clock()
         self.clock.setMode(ClockObject.MLimited)
@@ -217,7 +217,15 @@ class Render(Action, ShowBase):
         self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 3.5))
 
 
+        print(x,y)
+
+        if(x != 100.0 or y != 100.0):
+            self.taskMgr.add(self.dum, "dum-task")
         return Task.cont
+    
+    def dum(self, task):
+        self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
+        self.last = task.time
 
     # Function to put instructions on the screen.
     def addInstructions(self, pos, msg):
