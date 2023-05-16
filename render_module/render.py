@@ -50,10 +50,7 @@ class Render(Action, ShowBase):
         self.scene.setPos(0, 0, 0)
 
         ralphStartPos = LVector3(0, 0, 20)
-        #self.ralph = Actor("render_module/models/ralph")
-        self.ralph = Actor("render_module/models/ralph",
-                           {"run": "render_module/models/ralph-run",
-                            "walk": "render_module/models/ralph-walk"})
+        self.ralph = Actor("render_module/models/ralph")
         self.ralph.reparentTo(render)
         self.ralph.setScale(1)
         self.ralph.setPos(ralphStartPos + (0, 0, 0.5))
@@ -156,16 +153,16 @@ class Render(Action, ShowBase):
         box = 100
         md = self.win.getPointer(0)
         # send rotation to physics
-        angle = ((self.heading % 360)/360)
+        angle = ((self.heading % 360)/360) * (pi)
         if self.cursorX != md.getX() or self.cursorY != md.getY():
-            self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(angle)))
+            xangle = cos(angle) 
+            yangle = sin(angle)
+            self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(xangle, yangle)))
 
         self.cursorX = md.getX()
         self.cursorY = md.getY()
         if self.win.movePointer(0, 100, 100):
             self.heading = self.heading - (self.cursorX - 100) * 0.2
-            #self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
-            #MessageHandling().add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
             self.pitch = self.pitch - (self.cursorY - 100) * 0.2
         if self.pitch < -45:
             self.pitch = -45
@@ -173,9 +170,7 @@ class Render(Action, ShowBase):
             self.pitch = 45
 
         self.camera.setHpr(self.heading, self.pitch, 0)
-        #quat = self.camera.getQuat()
         angle = ((self.heading % 360)/360) * (2*pi)
-        #print(angle)
 
         dir = self.camera.getMat().getRow3(1)
         if self.camera.getX() < -box:
