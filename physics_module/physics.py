@@ -1,6 +1,7 @@
 import pybullet as p
 import pybullet_data
 import time
+import math
 from threading import Lock
 
 from communication.action import Action, CharacterMove, OnPressed, CharacterTurned
@@ -65,48 +66,57 @@ class Physics(Action):
             if currentVelocity[i] < minVelocity:
                 currentVelocity[i] = minVelocity
 
-
-
         p.resetBaseVelocity(self.boxId, currentVelocity)
 
     # Called every update and checks keys in use.
+    # Updated version that utilises orientation
     def move(self):
+        # Setup values, should be moved to setup
         maxVelocity = 5.0
         minVelocity = -5.0
         accelerationForward = 0.1
         accelerationSide = 0.1
-        jumpScale = 10
+        jumpScale = 20
 
-        pos, orn = p.getBasePositionAndOrientation(self.boxId)
-        rotationMatrix = p.getMatrixFromQuaternion(orn)
-
-        currentVelocity, _ = p.getBaseVelocity(self.boxId)
-        currentVelocity = list(currentVelocity)
-
-        newVelocity = [0, 0, 0]
-
-        newVelocity[0] += (-self.keys['a']+self.keys['d']) * accelerationSide
-        newVelocity[1] += (-self.keys['s']+self.keys['w']) * accelerationForward
+        # Check keyboard inputs to get movement direction
+        newDirection = [(-self.keys['a']+self.keys['d']) * accelerationSide,
+                       (-self.keys['s']+self.keys['w']) * accelerationForward,
+                       0
+                    ]
 
         # Normalize vector so max speed is the same in every direction
-        mag = (newVelocity[0] ** 2 + newVelocity[1] ** 2 + newVelocity[2] ** 2) ** 0.5
+        mag = math.sqrt(newDirection[0] ** 2 + newDirection[1] ** 2 + newDirection[2] ** 2)
         if mag > 0:
-            newVelocity = [newVelocity[0] / mag, newVelocity[1] / mag, newVelocity[2] / mag]
+            newDirection = [newDirection[0] / mag, newDirection[1] / mag, newDirection[2] / mag]
         
-        newVelocity = [currentVelocity[0] + newVelocity [0], currentVelocity[1] + newVelocity [1], currentVelocity[2] + newVelocity [2]]
+        # Get current velocity and orientation of the object
+        pos, orn = p.getBasePositionAndOrientation(self.boxId)
+        currentVelocity, _ = p.getBaseVelocity(self.boxId)
+        _, _, yaw = p.getEulerFromQuaternion(orn)
 
+        # Calculate movement vector
+        movementVector = [
+            newDirection[0] * math.cos(yaw) - newDirection[1] * math.sin(yaw),
+            newDirection[0] * math.sin(yaw) + newDirection[1] * math.cos(yaw),
+            newDirection[2]
+        ]
+
+        # Take into account old velocity
+        movementVector = [movementVector[i] + currentVelocity[i] for i in range(3)]
+
+        # Calculate actual speed
+        movementSpeed = math.sqrt(movementVector[0] ** 2 + movementVector[1] ** 2)
+        jump = movementVector[2]
+        # If above speed limit adjust speed
+        if movementSpeed > maxVelocity:
+            movementVector = [movementVector[i] * maxVelocity / movementSpeed for i in range(2)]
+            movementVector.append(jump)
+
+        # Checking if jump is allowed, applied after everything else
         if len(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId)) > 0:
-            newVelocity[2] += self.keys['space'] * accelerationForward * jumpScale
+            movementVector[2] += self.keys['space'] * accelerationForward * jumpScale
 
-        #print(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId))
-
-        for i in range(2):
-            if newVelocity[i] > maxVelocity:
-                newVelocity[i] = maxVelocity
-            if newVelocity[i] < minVelocity:
-                newVelocity[i] = minVelocity
-
-        p.resetBaseVelocity(self.boxId, newVelocity)
+        p.resetBaseVelocity(self.boxId, movementVector, [0,0,0])
 
 
 
