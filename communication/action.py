@@ -35,3 +35,7 @@ class CharacterMove():
         self.xcord = xcord
         self.ycord = ycord
         self.zcord = zcord
+
+class CharacterTurned():
+    def __init__(self, orientation):
+        self.orientation = orientation
