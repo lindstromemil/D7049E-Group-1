@@ -3,7 +3,7 @@ import pybullet_data
 import time
 from threading import Thread
 
-from communication.action import Action, CharacterMove, OnPressed
+from communication.action import Action, CharacterMove, OnPressed, CharacterTurned
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
@@ -141,5 +141,10 @@ class Physics(Action):
 
     def do_action(self, action):
         if isinstance(action, OnPressed):
-            print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
+            #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self.keys[action.key] = action.value
+
+        if isinstance(action, CharacterTurned):
+            pos, orientation = (p.getBasePositionAndOrientation(self.boxId))
+            #identity_orientation = p.getQuaternionFromEuler([action.orientation,orientation[1],orientation[2]])
+            p.resetBasePositionAndOrientation(self.boxId, pos, (orientation[0], orientation[1], orientation[2], 1))
