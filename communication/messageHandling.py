@@ -30,7 +30,7 @@ class MessageHandling():
         while self.running:
             self._lock.acquire()
             if self.messages:
-                print(f"number of events in list: '{len(self.get_messages())}'")
+                #print(f"number of events in list: '{len(self.get_messages())}'")
                 message: Message = self.get_first_message()
                 self.send_message(message)
             self._lock.release()
