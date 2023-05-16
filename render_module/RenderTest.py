@@ -6,7 +6,7 @@ from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence
 import sys
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode
+from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
 #necessary installation in order to run glb files in panda
 #python -m pip install -U panda3d-gltf
@@ -26,12 +26,20 @@ class MyApp(ShowBase):
         # card.setTexture(myTexture)
         # self.scene.setTexture(myTexture)
 
+        self.clock = ClockObject.get_global_clock()
+        self.clock.setMode(ClockObject.MLimited)
+        self.clock.setFrameRate(60)
+        self.setFrameRateMeter(True)
+
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
 
         # Apply scale and position transforms on the model.
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
+
+        self.arm_handgun = Actor("models/arm_handgun.bam",
+              {"shoot": "models/arm_handgun_ArmatureAction.bam"})
 
         # ralphStartPos = LVector3(0, 0, -1)
         # self.ralph = Actor("models/ralph",
@@ -93,6 +101,8 @@ class MyApp(ShowBase):
         self.cam.node().setLens(self.lens)
         self.heading = -95.0
         self.pitch = 0.0
+
+        self.gun()
 
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
@@ -229,10 +239,14 @@ class MyApp(ShowBase):
         #     camdist = 5.0
 
         # self.camera.lookAt(self.floater)
-
+        # if(x != 0 or y != 0):
+        #     self.taskMgr.add(self.dum, "dum-task")
 
         return Task.cont
 
+    def dum(self, task):
+        print("hej")
+        self.last = task.time
 
     def rotateCam(self, offset):
         self.heading = self.heading - offset * 10
@@ -242,6 +256,38 @@ class MyApp(ShowBase):
         self.keys[key] = value
 
     # Function to put instructions on the screen.
+    def gun(self):
+        # # reparent player character to render node
+        # fp_character = Actor("models/npc_1.bam",
+        #       {"walking": "models/npc_1_ArmatureAction.bam", "death": "models/npc_1_death.bam"})
+        # fp_character.reparent_to(self.render)
+        # fp_character.set_scale(1)
+        # # set the actor skinning hardware shader
+        # #fp_character.set_attrib(scene_shader)
+
+        # self.camera.reparent_to(fp_character)
+        # # reparent character to FPS cam
+        # #fp_character.reparent_to(fp_character)
+        # fp_character.set_pos(0, 0, -0.95)
+        # # self.camera.set_x(self.player, 1)
+        # self.camera.set_y(fp_character, 0.03)
+        # self.camera.set_z(fp_character, 0.5)
+        
+        # player gun begins
+        self.player_gun = Actor("models/arm_handgun.bam",
+              {"shoot": "models/arm_handgun_ArmatureAction.bam"})
+        self.player_gun.reparent_to(self.render)
+        self.player_gun.reparent_to(self.camera)
+        self.player_gun.set_x(self.camera, 0.1)
+        self.player_gun.set_y(self.camera, 0.4)
+        self.player_gun.set_z(self.camera, -0.1)
+
+        target_dot = TextNode('target_dot_node')
+        target_dot.set_text(".")
+        target_dot_node = self.aspect2d.attach_new_node(target_dot)
+        target_dot_node.set_scale(0.075)
+        target_dot_node.set_pos(0, 0, 0)
+
 def addInstructions(pos, msg):
     return OnscreenText(text=msg, style=1, fg=(1, 1, 1, 1), scale=.05,
                         shadow=(0, 0, 0, 1), parent=base.a2dTopLeft,

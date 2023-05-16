@@ -15,6 +15,7 @@ import sys
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
+#TODO: Map mouse movement to function for it to be handled in physics similarily to how key presses are done currently this might improve movement controls
 class Render(Action, ShowBase):
     __instance = None
 
@@ -38,7 +39,7 @@ class Render(Action, ShowBase):
         self.scene.reparentTo(self.render)
 
 
-        # Set and show framerate
+        # Sets the clockrate/framerate and shows framerate
         self.setFrameRateMeter(True)
         self.clock = ClockObject.get_global_clock()
         self.clock.setMode(ClockObject.MLimited)
@@ -217,7 +218,15 @@ class Render(Action, ShowBase):
         self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 3.5))
 
 
+        print(x,y)
+
+        if(x != 100.0 or y != 100.0):
+            self.taskMgr.add(self.dum, "dum-task")
         return Task.cont
+    
+    def dum(self, task):
+        self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
+        self.last = task.time
 
     # Function to put instructions on the screen.
     def addInstructions(self, pos, msg):
