@@ -127,9 +127,12 @@ class Render(Action, ShowBase):
         self.message_handler.add_component(self.physics_engine)
         self.message_handler.add_component(self.__instance)
 
-        wp = WindowProperties()
-        wp.setSize(400, 400)
-        base.win.requestProperties(wp)
+        # wp = WindowProperties()
+        # wp.setSize(1920, 1080)
+        # base.win.requestProperties(wp)
+
+        self.cursorX = 100
+        self.cursorY = 100
 
 
     
@@ -151,21 +154,22 @@ class Render(Action, ShowBase):
         # figure out how much the mouse has moved (in pixels)
         box = 100
         md = self.win.getPointer(0)
-        x = md.getX()
-        y = md.getY()
+        # send rotation to physics
+        angle = ((self.heading % 360)/360)
+        if self.cursorX != md.getX() or self.cursorY != md.getY():
+            self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(angle)))
+
+        self.cursorX = md.getX()
+        self.cursorY = md.getY()
         if self.win.movePointer(0, 100, 100):
-            self.heading = self.heading - (x - 100) * 0.2
+            self.heading = self.heading - (self.cursorX - 100) * 0.2
             #self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
             #MessageHandling().add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
-            self.pitch = self.pitch - (y - 100) * 0.2
+            self.pitch = self.pitch - (self.cursorY - 100) * 0.2
         if self.pitch < -45:
             self.pitch = -45
         if self.pitch > 45:
             self.pitch = 45
-
-        #Thread()
-        #self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
-
 
         self.camera.setHpr(self.heading, self.pitch, 0)
         #quat = self.camera.getQuat()
@@ -207,23 +211,11 @@ class Render(Action, ShowBase):
         self.ralph.setY(self.ralph, self.move_y)
         self.ralph.setX(self.ralph, self.move_x)
         
-
-        #self.camera.setPos(self.ralph.getPos() - LVector3(-1*sin(angle), -1*cos(angle), -4))
         xangle = 1*cos(angle+ pi/2.5) 
         yangle = 1*sin(angle+ pi/2.5)
-        print(xangle)
-        print(yangle)
-        print()
         #self.camera.setPos(self.ralph.getPos() + LVector3(2, 0, 6))
         self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 3.5))
 
-        #delta = globalClock.getDt()
-        #move_x = delta * 10 * -self.keys['a'] + delta * 10 * self.keys['d']
-        #move_z = delta * 10 * self.keys['s'] + delta * 10 * -self.keys['w']
-        #pos = self.camera.getPos()
-        #self.camera.setPos(self.camera, move_x, -move_z, 0)
-        #self.camera.setPos(self.camera, -self.move_x, -self.move_y, -self.move_z)
-        #self.camera.setHpr(self.heading, self.pitch, 0)
 
         return Task.cont
 

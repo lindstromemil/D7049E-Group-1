@@ -1,7 +1,7 @@
 import pybullet as p
 import pybullet_data
 import time
-from threading import Thread
+from threading import Lock
 
 from communication.action import Action, CharacterMove, OnPressed, CharacterTurned
 from communication.message import Message
@@ -124,15 +124,17 @@ class Physics(Action):
         self.startPos = [0, 0, 1]
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
         self.generateObject(object="cube")
-
+        self._lock = Lock()
         p.setTimeStep(1./144)
 
     
     def start(self, task):
         self.move()
+        self._lock.acquire()
         pos1, _ = (p.getBasePositionAndOrientation(self.boxId))
         p.stepSimulation()
         pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
+        self._lock.release()
         MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
         #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
 
@@ -145,6 +147,11 @@ class Physics(Action):
             self.keys[action.key] = action.value
 
         if isinstance(action, CharacterTurned):
+            #print(action.orientation)
+            self._lock.acquire()
+            currentVelocity, _ = p.getBaseVelocity(self.boxId)
             pos, orientation = (p.getBasePositionAndOrientation(self.boxId))
             #identity_orientation = p.getQuaternionFromEuler([action.orientation,orientation[1],orientation[2]])
-            p.resetBasePositionAndOrientation(self.boxId, pos, (orientation[0], orientation[1], orientation[2], 1))
+            p.resetBasePositionAndOrientation(self.boxId, pos, (orientation[0], orientation[1], action.orientation, 1))
+            p.resetBaseVelocity(self.boxId, currentVelocity)
+            self._lock.release()
