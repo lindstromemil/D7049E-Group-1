@@ -8,11 +8,13 @@ from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
 
-# TODO: SET NEW TIMESTEP FOR STEPS (Timestep that fits with render)
-# TODO: Generate objects from function ish done
-# TODO: List of objects ish done
-# TODO: Lookup how to work with urdfs
-# TODO: Be able to move other objects
+# TODO: SET NEW TIMESTEP FOR STEPS (Timestep that fits with render) -- Done
+# TODO: Generate objects from function ish done --Done
+# TODO: List of objects ish done --Done but not used yet
+# TODO: Lookup how to work with urdfs -- Can now scale
+# TODO: Be able to move other objects -- Not done yet
+# TODO: Make moving dependnt on where rotated -- Done
+# TODO: Follow rotation of camera
 
 
 class Physics(Action):
@@ -31,29 +33,31 @@ class Physics(Action):
 
 
     # Add customPos and orientation as arguments. Make object argurment instead of set to r2d2
-    def generateObject(self, object="cube", pos = [0,0,1], orientation = [0, 0, 0]):
+    def generateObject(self, object="cube", pos = [0,0,1], orientation = [0, 0, 0], scaling = 1):
         orientation = p.getQuaternionFromEuler(orientation)
-        self.boxId = p.loadURDF(object + ".urdf", pos, orientation)
+        self.boxId = p.loadURDF(object + ".urdf", pos, orientation, globalScaling=scaling)
         self.collection.append(self.boxId)
 
-    # Called every update and checks which keys are in use
-    def move(self):
+    # OLD MOVE
+    def move2(self):
         #p.resetBaseVelocity(self.boxId, [-self.keys['a']+self.keys['d'], -self.keys['s']+self.keys['w'], 2*self.keys[' ']])
 
         maxVelocity = 5.0
         minVelocity = -5.0
-        acceleration = 0.1
+        accelerationForward = 0.1
+        accelerationSide = 0.05
+        jumpScale = 50
 
         currentVelocity, _ = p.getBaseVelocity(self.boxId)
 
         currentVelocity = list(currentVelocity)
 
-        currentVelocity[0] += (-self.keys['a']+self.keys['d']) * acceleration
-        currentVelocity[1] += (-self.keys['s']+self.keys['w']) * acceleration
+        currentVelocity[0] += (-self.keys['a']+self.keys['d']) * accelerationSide
+        currentVelocity[1] += (-self.keys['s']+self.keys['w']) * accelerationForward
         if len(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId)) > 0:
-            currentVelocity[2] += 100*self.keys['space'] * acceleration
+            currentVelocity[2] += self.keys['space'] * accelerationForward * jumpScale
 
-        print(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId))
+        #print(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId))
 
         for i in range(3):
             if currentVelocity[i] > maxVelocity:
@@ -61,11 +65,54 @@ class Physics(Action):
             if currentVelocity[i] < minVelocity:
                 currentVelocity[i] = minVelocity
 
+
+
         p.resetBaseVelocity(self.boxId, currentVelocity)
+
+    # Called every update and checks keys in use.
+    def move(self):
+        maxVelocity = 5.0
+        minVelocity = -5.0
+        accelerationForward = 0.1
+        accelerationSide = 0.1
+        jumpScale = 10
+
+        pos, orn = p.getBasePositionAndOrientation(self.boxId)
+        rotationMatrix = p.getMatrixFromQuaternion(orn)
+
+        currentVelocity, _ = p.getBaseVelocity(self.boxId)
+        currentVelocity = list(currentVelocity)
+
+        newVelocity = [0, 0, 0]
+
+        newVelocity[0] += (-self.keys['a']+self.keys['d']) * accelerationSide
+        newVelocity[1] += (-self.keys['s']+self.keys['w']) * accelerationForward
+
+        # Normalize vector so max speed is the same in every direction
+        mag = (newVelocity[0] ** 2 + newVelocity[1] ** 2 + newVelocity[2] ** 2) ** 0.5
+        if mag > 0:
+            newVelocity = [newVelocity[0] / mag, newVelocity[1] / mag, newVelocity[2] / mag]
         
-        print(p.getBaseVelocity(self.boxId))
+        newVelocity = [currentVelocity[0] + newVelocity [0], currentVelocity[1] + newVelocity [1], currentVelocity[2] + newVelocity [2]]
+
+        if len(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId)) > 0:
+            newVelocity[2] += self.keys['space'] * accelerationForward * jumpScale
+
+        #print(p.getContactPoints(bodyA=self.boxId, bodyB=self.planeId))
+
+        for i in range(2):
+            if newVelocity[i] > maxVelocity:
+                newVelocity[i] = maxVelocity
+            if newVelocity[i] < minVelocity:
+                newVelocity[i] = minVelocity
+
+        p.resetBaseVelocity(self.boxId, newVelocity)
 
 
+
+
+
+    # Use function to generate
     def setup(self, renderId):
         self.collection = []                                    # List of all objects
         self.renderId = renderId
@@ -76,9 +123,9 @@ class Physics(Action):
         self.planeId = p.loadURDF("plane.urdf")
         self.startPos = [0, 0, 1]
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
-        self.boxId = p.loadURDF("cube.urdf", self.startPos, self.startOrientation)
+        self.generateObject(object="cube")
 
-        p.setTimeStep(1./240)
+        p.setTimeStep(1./144)
 
     
     def start(self, task):
