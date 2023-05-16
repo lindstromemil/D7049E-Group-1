@@ -15,6 +15,7 @@ import sys
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
+#TODO: Map mouse movement to function for it to be handled in physics similarily to how key presses are done currently this might improve movement controls
 class Render(Action, ShowBase):
     __instance = None
 
