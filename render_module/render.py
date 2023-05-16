@@ -11,7 +11,7 @@ from direct.task import Task
 from direct.actor.Actor import Actor
 import sys
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode
+from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
 class Render(Action, ShowBase):
     __instance = None
@@ -36,8 +36,11 @@ class Render(Action, ShowBase):
         self.scene.reparentTo(self.render)
 
 
-        ####### DUM SKIT
+        # Set and show framerate
         self.setFrameRateMeter(True)
+        self.clock = ClockObject.get_global_clock()
+        self.clock.setMode(ClockObject.MLimited)
+        self.clock.setFrameRate(144)
 
         # Apply scale and position transforms on the model.
         self.scene.setScale(1, 1, 1)
@@ -118,7 +121,7 @@ class Render(Action, ShowBase):
         self.message_handler.add_component(self.__instance)
 
         wp = WindowProperties()
-        wp.setSize(1920, 1080)
+        wp.setSize(400, 400)
         base.win.requestProperties(wp)
 
 
