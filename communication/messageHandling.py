@@ -22,16 +22,19 @@ class MessageHandling():
         self.messages = []
         self.components = dict()
         self._lock = Lock()
+        self.running = True
         # self.handle_message = Thread(target=self.handle_messages, daemon=True)
         # self.handle_message.start()
     
-    def handle_messages(self, task):
-        self._lock.acquire()
-        if self.messages:
-            message: Message = self.get_first_message()
-            self.send_message(message)
-        self._lock.release()
-        return Task.cont
+    def handle_messages(self):
+        while self.running:
+            self._lock.acquire()
+            if self.messages:
+                print(f"number of events in list: '{len(self.get_messages())}'")
+                message: Message = self.get_first_message()
+                self.send_message(message)
+            self._lock.release()
+        #return Task.cont
 
     def add_message(self, message: Message):
         self._lock.acquire()

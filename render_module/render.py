@@ -109,11 +109,12 @@ class Render(Action, ShowBase):
 
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
-        self.accept("escape", sys.exit, [0])
+        self.accept("escape", self.close, [0])
 
         self.message_handler = MessageHandling()
-        self.taskMgr.add(self.message_handler.handle_messages, "messasge-task")
-        #self.taskMgr.add(self.message_handler.handle_messages, "message-task")
+        #self.taskMgr.add(self.message_handler.handle_messages, "messasge-task")
+        self.messagingThread = Thread(target=self.message_handler.handle_messages)
+        self.messagingThread.start()
 
 
         self.physics_engine = Physics()
@@ -131,6 +132,11 @@ class Render(Action, ShowBase):
 
         self.cursorX = 100
         self.cursorY = 100
+
+
+    def close(self, arg):
+        self.message_handler.running = False
+        sys.exit(arg)
 
 
     
@@ -153,7 +159,7 @@ class Render(Action, ShowBase):
         box = 100
         md = self.win.getPointer(0)
         # send rotation to physics
-        angle = ((self.heading % 360)/360) * (pi)
+        angle = -((self.heading % 360)/360) * (pi)
         if self.cursorX != md.getX() or self.cursorY != md.getY():
             xangle = cos(angle) 
             yangle = sin(angle)
@@ -203,9 +209,10 @@ class Render(Action, ShowBase):
                 #self.isMoving = False
 
         self.ralph.setH(self.heading+180)
-        self.ralph.setZ(self.ralph, -self.move_z)
-        self.ralph.setY(self.ralph, self.move_y)
-        self.ralph.setX(self.ralph, self.move_x)
+        self.ralph.setPos(self.ralph.getPos() + LVector3(self.move_x, self.move_y, -self.move_z))
+        # self.ralph.setZ(self.ralph, -self.move_z)
+        # self.ralph.setY(self.ralph, self.move_y)
+        # self.ralph.setX(self.ralph, self.move_x)
         
         xangle = 1*cos(angle+ pi/2.5) 
         yangle = 1*sin(angle+ pi/2.5)
@@ -213,10 +220,6 @@ class Render(Action, ShowBase):
         self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 3.5))
 
         return Task.cont
-    
-    def dum(self, task):
-        self.message_handler.add_message(Message("render engine", self.physics_id, CharacterTurned(self.heading)))
-        self.last = task.time
 
     # Function to put instructions on the screen.
     def addInstructions(self, pos, msg):
@@ -232,8 +235,9 @@ class Render(Action, ShowBase):
     
     def push_key(self, key, value):
         """Stores a value associated with a key."""
-        self.keys[key] = value
-        self.message_handler.add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
+        if self.keys[key] != value:
+            self.keys[key] = value
+            self.message_handler.add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
 
     def do_action(self, action):
         # if isinstance(action, MouseMoved):
