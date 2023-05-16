@@ -135,6 +135,7 @@ class Physics(Action):
         self.startOrientation = p.getQuaternionFromEuler([0, 0, 0])
         self.generateObject(object="cube")
         self._lock = Lock()
+        self._lock2 = Lock()
         p.setTimeStep(1./144)
 
     
@@ -145,6 +146,8 @@ class Physics(Action):
         p.stepSimulation()
         pos2, _ = (p.getBasePositionAndOrientation(self.boxId))
         self._lock.release()
+        #print("diff: ({0} : {1} : {2})".format(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2]))
+
         MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0]-pos2[0],pos1[1]-pos2[1],pos1[2]-pos2[2])))
         #MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(pos1[0],pos1[1],pos1[2])))
 
@@ -159,7 +162,9 @@ class Physics(Action):
     def do_action(self, action):
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
+            self._lock2.acquire()
             self.keys[action.key] = action.value
+            self._lock2.release()
 
         if isinstance(action, CharacterTurned):
             #print(action.orientation)
