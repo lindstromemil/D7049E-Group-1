@@ -117,7 +117,7 @@ class Physics(Action):
         self.collection = []                                    # List of all objects
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
-        self.physicsClient = p.connect(p.DIRECT)
+        self.physicsClient = p.connect(p.GUI)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.planeId = p.loadURDF("plane.urdf")
@@ -157,6 +157,6 @@ class Physics(Action):
             currentVelocity, _ = p.getBaseVelocity(self.boxId)
             pos, orientation = (p.getBasePositionAndOrientation(self.boxId))
             #identity_orientation = p.getQuaternionFromEuler([action.orientation,orientation[1],orientation[2]])
-            p.resetBasePositionAndOrientation(self.boxId, pos, (orientation[0], orientation[1], action.orientation, 1))
+            p.resetBasePositionAndOrientation(self.boxId, pos, (orientation[0], orientation[1], action.orientationX, action.orientationY))
             p.resetBaseVelocity(self.boxId, currentVelocity)
             self._lock.release()
