@@ -8,6 +8,9 @@ from communication.action import Action, CharacterMove, OnPressed, CharacterTurn
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
+from communication.idConverter import IdConverter
+
+from communication.bullet import Bullet
 
 # TODO: List of objects --Done but not used yet
 # TODO: Be able to move other objects -- Not done yet
@@ -177,6 +180,9 @@ class Physics(Action):
 
     # Function to handle actions from other classes
     def do_action(self, action):
+        if isinstance(action, Bullet):
+            physics_id = self.generateObject(pos=[0,5,1])
+            self.idConverter.add_ids(physics_id, action.id)
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self._keypressLock.acquire()

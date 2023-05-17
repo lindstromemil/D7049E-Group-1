@@ -8,6 +8,8 @@ from physics_module.physics import Physics
 
 from threading import Thread
 
+from communication.bullet import Bullet
+
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from direct.actor.Actor import Actor
@@ -83,6 +85,8 @@ class Render(Action, ShowBase):
             self.accept('shift-%s' % key, self.push_key, [key, 1])
             self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept('escape', __import__('sys').exit, [0])
+
+        self.accept('mouse1', self.shootBullet)
         #self.disableMouse()
 
         # Set the current viewing target
@@ -195,18 +199,6 @@ class Render(Action, ShowBase):
         self.last = task.time
         #self.camera.setHpr(self.heading, self.pitch, 0)
 
-        #pos = self.ralph.getPos()
-        #if -self.move_y > 0.1:
-            #if self.isMoving is False:
-                #print("false")
-                #self.ralph.loop("run")
-                #self.isMoving = True
-        #else:
-            #if self.isMoving:
-                #print("true")
-                #self.ralph.stop()
-                #self.ralph.pose("walk", 5)
-                #self.isMoving = False
 
         self.ralph.setH(self.heading+180)
         self.ralph.setPos(self.ralph.getPos() + LVector3(self.move_x, self.move_y, -self.move_z))
@@ -238,6 +230,16 @@ class Render(Action, ShowBase):
         if self.keys[key] != value:
             self.keys[key] = value
             self.message_handler.add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
+
+    def shootBullet(self):
+        xangle = ((self.heading % 360)/360) * (2*pi)
+        yangle = ((self.pitch % 360)/360) * (2*pi)
+        bullet = Bullet(xangle, yangle)
+        self.message_handler.add_component(bullet)
+        self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
+        #print(xangle)
+        #print(yangle)
+        #print("shot bullet")
 
     def do_action(self, action):
         # if isinstance(action, MouseMoved):
