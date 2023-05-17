@@ -4,19 +4,11 @@ from .action import Action, OnClick, OnPressed, MouseMoved
 
 #This is a test class, remove later or use as a frame of reference
 class Bullet(Action):
-    __instance = None
-
-    # Make it a singleton
-    def __new__(cls):
-        if cls.__instance is None:
-            cls.__instance = super(Bullet, cls).__new__(cls)
-            cls.__instance.__initialized  = False
-        return cls.__instance
     
-    def __init__(self):
-        if(self.__initialized): return
-        self.__initialized = True
+    def __init__(self, xangle, yangle):
         super().__init__()
+        self.xangle = xangle
+        self.yangle = yangle
 
 
     def do_action(self, action):

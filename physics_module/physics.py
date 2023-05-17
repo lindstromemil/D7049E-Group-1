@@ -8,6 +8,9 @@ from communication.action import Action, CharacterMove, OnPressed, CharacterTurn
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
+from communication.idConverter import IdConverter
+
+from communication.bullet import Bullet
 
 # TODO: SET NEW TIMESTEP FOR STEPS (Timestep that fits with render) -- Done
 # TODO: Generate objects from function ish done --Done
@@ -160,6 +163,9 @@ class Physics(Action):
     #         self.keys[action.key] = action.value
 
     def do_action(self, action):
+        if isinstance(action, Bullet):
+            physics_id = self.generateObject(pos=[0,5,1])
+            self.idConverter.add_ids(physics_id, action.id)
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self._lock2.acquire()
