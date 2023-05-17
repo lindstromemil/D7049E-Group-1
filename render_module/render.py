@@ -43,7 +43,7 @@ class Render(Action, ShowBase):
         self.setFrameRateMeter(True)
         self.clock = ClockObject.get_global_clock()
         self.clock.setMode(ClockObject.MLimited)
-        self.clock.setFrameRate(144)
+        self.clock.setFrameRate(60)
 
         # Apply scale and position transforms on the model.
         self.scene.setScale(1, 1, 1)
