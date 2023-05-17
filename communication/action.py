@@ -11,8 +11,6 @@ class Action():
 
 # ------------------Events------------------
 
-
-
 # Input Manager
 class OnPressed():
     def __init__(self, key, value):
