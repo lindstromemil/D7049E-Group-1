@@ -34,7 +34,6 @@ Run `sample.py` to start the game engine and the game attached to it.
 ### All pip installs (so far)
 ```
 pip install PyOpenAL
-pip install pynput
 pip install pybullet
 ```
 
