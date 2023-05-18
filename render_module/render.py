@@ -1,9 +1,10 @@
 from math import pi, sin, cos
 
-from communication.action import Action, OnPressed, CharacterMove, CharacterTurned, ObjectMove
+from communication.action import Action, OnPressed, CharacterMove, CharacterTurned, ObjectMove, RemoveObject
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 from physics_module.physics import Physics
+from audio_module.audioHandeler import Sound
 
 from threading import Thread
 
@@ -14,6 +15,7 @@ from direct.task import Task
 from direct.actor.Actor import Actor
 import sys
 from direct.gui.OnscreenText import OnscreenText
+import time
 from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat, LMatrix4d
 
 class Render(Action, ShowBase):
@@ -35,16 +37,12 @@ class Render(Action, ShowBase):
         ShowBase.__init__(self)
         self.idConverter = IdConverter()
         self.modelFinder = IdConverter()
-        self.loadMap("render_module/models/square.egg.pz")
-        self.setClock(60)
         self.loadRalph()
         self.setInstructions()
         self.setupInputSettings()
         self.setupCamera()
         self.setupPhysics()
-        self.setFullscreen(False)
         self.setVariables()
-        self.addTitle("GunAimLab")
         self.counter = 0
 
         # Start the camera control task:
@@ -258,6 +256,12 @@ class Render(Action, ShowBase):
                         parent=base.a2dBottomRight, align=TextNode.ARight,
                         pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
     
+    # Plays music from the Sounds folder inside audio_module
+    def addMusic(self, file_name):
+        sound = Sound("'audio_module/Sounds\\'")
+        soundThread = Thread(target=sound.play,args=(file_name, 0.1, 0, 0), daemon=True)
+        soundThread.start()
+    
     # simple function used for setting keymaping for WASD & SPACE
     def push_key(self, key, value):
         """Stores a value associated with a key."""
@@ -271,11 +275,11 @@ class Render(Action, ShowBase):
         #quat = Quat()
         #quat.setHpr((self.heading, self.pitch, 2))
         bullet = Bullet(angle)
+        self.message_handler.add_component(bullet)
+        self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
         pos = self.ralph.getPos()
         pos.z = pos.z+3.5
         self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/brick-c.jpg",pos,1)
-        self.message_handler.add_component(bullet)
-        self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         self.counter = self.counter + 1
         #print(self.counter)
@@ -298,4 +302,11 @@ class Render(Action, ShowBase):
                 return
             object = self.modelFinder.get_current_id(action.UID)
             object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*17))
+
+        if isinstance(action, RemoveObject):
+            print("removed object")
+            object = self.modelFinder.get_current_id(action.UID).removeNode()
+            self.idConverter.delete_universal_id(action.UID)
+            self.modelFinder.delete_universal_id(action.UID)
+            
 

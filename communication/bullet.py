@@ -1,7 +1,5 @@
 
 from .action import Action
-from audio_module.audioHandeler import Sound
-from threading import Thread
 
 
 #This is a test class, remove later or use as a frame of reference
@@ -17,5 +15,5 @@ class Bullet(Action):
             print("pew!")
             #TODO fix good sound
             # sound = Sound('audio_module/Sounds\\')
-            # soundThread = Thread(target=sound.play,args=('m1garand.wav', 0.1, 0, 0))
+            # soundThread = Thread(target=sound.play,args=('m1garand.wav', 0.1, 0, 0), daemon=True)
             # soundThread.start()
