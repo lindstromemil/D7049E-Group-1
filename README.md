@@ -29,13 +29,7 @@ Both documents will get updated as the course progresses and are not final.
 
 ## Setup
 
-Run `sample.py` and it will generate the config files in `/Documents/PySample` on your main drive. Do the following inside `/PySample`: 
-
-Add a folder named `Meshes` where the mesh, material and skeleton files will be. Add a file named `resources.cfg` and insert
-```
-[General] 
-FileSystem=../PySample/Meshes
-```
+Run `sample.py` to start the game engine and the game attached to it.
 
 ### All pip installs (so far)
 ```
@@ -43,5 +37,12 @@ pip install PyOpenAL
 pip install pynput
 pip install pybullet
 
-Install Panda3D
+#### Install Panda3D
+
+if you have python already installed on your device then simply run:
+`pip install panda3d==1.10.13`
+
+
+Otherwise download Panda3D [here](https://docs.panda3d.org/1.10/python/introduction/installation-windows)
+
 ```
