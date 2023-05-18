@@ -17,3 +17,6 @@ class IdConverter():
     
     def get_all_current_ids(self):
         return list(self.current.items())
+    
+    def delete_current_id(self, current):
+        self.current.pop(self.universal.pop(self.current[current]))
