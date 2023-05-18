@@ -15,7 +15,7 @@ from direct.task import Task
 from direct.actor.Actor import Actor
 import sys
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
+from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat
 
 class Render(Action, ShowBase):
     __instance = None
@@ -265,9 +265,11 @@ class Render(Action, ShowBase):
 
 
     def shootBullet(self):
-        xangle = ((self.heading % 360)/360) * (2*pi)
-        yangle = ((self.pitch % 360)/360) * (2*pi)
+        xangle = ((self.heading % 360)/360) * (pi)
+        yangle = (self.pitch / 360) * (pi)
         bullet = Bullet(xangle, yangle)
+        quat = Quat()
+        quat.setHpr((self.heading, self.pitch, 0))
         self.message_handler.add_component(bullet)
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         #print(xangle)

@@ -38,7 +38,8 @@ class Physics(Action):
         orientation = p.getQuaternionFromEuler(orientation)
         physicsId = p.loadURDF(object + ".urdf", pos,
                                orientation, globalScaling=scaling)
-        self.addNewIds(universalId, physicsId)
+        self.idConverter.add_ids(physicsId, universalId)
+        #self.addNewIds(universalId, physicsId)
 
         # Ugly hack to get playerid and planeid set
         if player:
@@ -111,26 +112,35 @@ class Physics(Action):
     # Updates veloicty of object to given velocity and orientation
     # If no orientation given, uses current orientation of object
     # Does not account for current velocity
-    def updateVelocityObject(self, universalId, velocity, orientation=0):
-        physicsId = self.universalIdtoPhysicsId.get(universalId)
+    def updateVelocityObject(self, universalId, velocity, orientation=0, zAngle=0):
+        #physicsId = self.universalIdtoPhysicsId.get(universalId)
+        physicsId = self.idConverter.get_current_id(universalId)
 
         if orientation == 0:
              _, orientation = p.getBasePositionAndOrientation(physicsId)
 
         # Get current velocity and orientation of the object
-        _, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        root, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        #print(root)
+        #print(pitch)
+        #print(yaw)
+        #print()
 
         # Calculate movement vector
         movementVector = [
-            velocity * math.cos(yaw) * math.cos(pitch),
             velocity * math.sin(yaw) * math.cos(pitch),
-            velocity * math.sin(pitch)
+            velocity * math.cos(yaw) * math.cos(pitch),
+            velocity * math.sin(zAngle)
+            # velocity * math.cos(yaw) * math.cos(pitch),
+            # velocity * math.sin(yaw) * math.cos(pitch),
+            # velocity * math.sin(pitch)
         ]
         p.resetBaseVelocity(physicsId, movementVector)
 
     # Moves object to 
     def moveObject(self, universalId, pos, ori=0):
-        physicsId = self.universalIdtoPhysicsId.get(universalId)
+        #physicsId = self.universalIdtoPhysicsId.get(universalId)
+        physicsId = self.idConverter.get_current_id(universalId)
         if ori == 0:
             _, ori = p.getBasePositionAndOrientation(physicsId)
         p.resetBasePositionAndOrientation(physicsId, pos, ori)
@@ -138,8 +148,9 @@ class Physics(Action):
     # Setup for required parts of the physics client
     # Does not start the simulation only sets it up
     def setup(self, renderId):
-        self.universalIdtoPhysicsId = {}
-        self.physicsIdtoUniversalId = {}
+        self.idConverter = IdConverter()
+        #self.universalIdtoPhysicsId = {}
+        #self.physicsIdtoUniversalId = {}
         # Id to render engine
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
@@ -174,15 +185,26 @@ class Physics(Action):
             beforePos[0]-afterPos[0], beforePos[1]-afterPos[1], beforePos[2]-afterPos[2])))
         return Task.cont
 
-    def addNewIds(self, universalId, physicsId):
-        self.universalIdtoPhysicsId.update({universalId: physicsId})
-        self.physicsIdtoUniversalId.update({physicsId: universalId})
+    # def addNewIds(self, universalId, physicsId):
+    #     self.universalIdtoPhysicsId.update({universalId: physicsId})
+    #     self.physicsIdtoUniversalId.update({physicsId: universalId})
 
     # Function to handle actions from other classes
     def do_action(self, action):
         if isinstance(action, Bullet):
-            physics_id = self.generateObject(pos=[0,5,1])
-            self.idConverter.add_ids(physics_id, action.id)
+            #self.idConverter.add_ids(physics_id, action.id)
+            xCos = math.cos(action.xangle)
+            xSin = math.sin(action.xangle)
+            yCos = math.cos(action.yangle)
+            ySin = math.sin(action.yangle)
+            pos, orientation = (p.getBasePositionAndOrientation(1))
+            physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
+            self.updateVelocityObject(action.id, 10, (orientation[0], orientation[1], -orientation[2], orientation[3]), zAngle=2*action.yangle)
+            print(action.yangle)
+            # print(ySin)
+            print()
+            #self.updateVelocityObject(action.id, 10, (0, yCos, xCos, xSin))
+            #(orientation[0], orientation[1], action.orientationX, action.orientationY)
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self._keypressLock.acquire()
