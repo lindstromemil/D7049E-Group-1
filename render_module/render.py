@@ -9,13 +9,13 @@ from physics_module.physics import Physics
 from threading import Thread
 
 from communication.bullet import Bullet
-
+from communication.idConverter import IdConverter
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from direct.actor.Actor import Actor
 import sys
 from direct.gui.OnscreenText import OnscreenText
-from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat
+from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat, LMatrix4d
 
 class Render(Action, ShowBase):
     __instance = None
@@ -34,6 +34,8 @@ class Render(Action, ShowBase):
     # main setup function called from main
     def setup(self):
         ShowBase.__init__(self)
+        self.idConverter = IdConverter()
+        self.modelFinder = IdConverter()
         self.loadMap("models/environment")
         self.setClock(144)
         self.loadRalph()
@@ -49,8 +51,7 @@ class Render(Action, ShowBase):
         self.taskMgr.add(self.controlCamera, "camera-task")
 
         self.objectRoot = self.render.attachNewNode("objectRoot")
-        floor = self.loader.loadModel("render_module/models/npc_1.bam")
-        self.createObject(floor,1,"render_module/models/brick-c.jpg",LVector3(0,0,0),10)
+        self.createObject("render_module/models/npc_1.bam",1,"render_module/models/brick-c.jpg",LVector3(0,0,0),10)
 
     # called upon to close the program
     def close(self, arg):
@@ -202,10 +203,9 @@ class Render(Action, ShowBase):
         self.cursorY = 100
 
         self.box = 100
-        self.universalIdtoRenderId = {}
-        self.renderIdtoUniversalId = {}
 
-    def createObject(self, model, UID, texturePath=0, lvector3=LVector3(0,0,0), size=1):
+    def createObject(self, path, UID, texturePath=0, lvector3=LVector3(0,0,0), size=1):
+        model = self.loader.loadModel(path)
         model.reparentTo(self.objectRoot)
         model.setScale(size)
         model.setPos(lvector3)
@@ -213,7 +213,9 @@ class Render(Action, ShowBase):
             myTexture = self.loader.loadTexture(texturePath)
             myTexture.setWrapU(myTexture.WM_repeat)
             model.setTexture(myTexture)
-        #self.addNewIds(UID,model)
+        currentId = model.this
+        self.idConverter.add_ids(currentId, UID)
+        self.modelFinder.add_ids(model, UID)
 
 
 
@@ -240,9 +242,6 @@ class Render(Action, ShowBase):
 
         
 
-    def addNewIds(self, universalId, renderId):
-        self.universalIdtoRenderId.update(universalId, renderId)
-        self.renderIdtoUniversalId.update(renderId, universalId)
 
     # Function to put instructions on the screen.
     def addInstructions(self, pos, msg):
@@ -265,11 +264,15 @@ class Render(Action, ShowBase):
 
 
     def shootBullet(self):
-        xangle = ((self.heading % 360)/360) * (pi)
-        yangle = (self.pitch / 360) * (pi)
-        bullet = Bullet(xangle, yangle)
+        #xangle = ((self.heading % 360)/360) * (pi)
+        #yangle = (self.pitch / 360) * (pi)
         quat = Quat()
-        quat.setHpr((self.heading, self.pitch, 0))
+        quat.setHpr((self.heading, self.pitch, 2))
+        bullet = Bullet(quat.x, quat.w)
+        pos = self.ralph.getPos()
+        pos.z = pos.z+3.5
+        self.createObject("render_module/models/ball.egg.pz",1,"render_module/models/brick-c.jpg",pos,0.5)
+        #print(quat.w)
         self.message_handler.add_component(bullet)
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         #print(xangle)

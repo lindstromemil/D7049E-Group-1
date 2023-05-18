@@ -112,7 +112,7 @@ class Physics(Action):
     # Updates veloicty of object to given velocity and orientation
     # If no orientation given, uses current orientation of object
     # Does not account for current velocity
-    def updateVelocityObject(self, universalId, velocity, orientation=0, zAngle=0):
+    def updateVelocityObject(self, universalId, velocity, orientation=0):
         #physicsId = self.universalIdtoPhysicsId.get(universalId)
         physicsId = self.idConverter.get_current_id(universalId)
 
@@ -120,17 +120,17 @@ class Physics(Action):
              _, orientation = p.getBasePositionAndOrientation(physicsId)
 
         # Get current velocity and orientation of the object
-        root, pitch, yaw = p.getEulerFromQuaternion(orientation)
+        _, pitch, yaw = p.getEulerFromQuaternion(orientation)
         #print(root)
-        #print(pitch)
-        #print(yaw)
-        #print()
+        print(pitch)
+        print(yaw)
+        print()
 
         # Calculate movement vector
         movementVector = [
             velocity * math.sin(yaw) * math.cos(pitch),
             velocity * math.cos(yaw) * math.cos(pitch),
-            velocity * math.sin(zAngle)
+            velocity * math.sin(pitch)
             # velocity * math.cos(yaw) * math.cos(pitch),
             # velocity * math.sin(yaw) * math.cos(pitch),
             # velocity * math.sin(pitch)
@@ -206,10 +206,7 @@ class Physics(Action):
             ySin = math.sin(action.yangle)
             pos, orientation = (p.getBasePositionAndOrientation(1))
             physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
-            self.updateVelocityObject(action.id, 10, (orientation[0], orientation[1], -orientation[2], orientation[3]), zAngle=2*action.yangle)
-            print(action.yangle)
-            # print(ySin)
-            print()
+            self.updateVelocityObject(action.id, 10, (action.yangle, action.xangle, -orientation[2], orientation[3]))
             #self.updateVelocityObject(action.id, 10, (0, yCos, xCos, xSin))
             #(orientation[0], orientation[1], action.orientationX, action.orientationY)
         if isinstance(action, OnPressed):
