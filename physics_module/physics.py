@@ -112,7 +112,7 @@ class Physics(Action):
     # Updates veloicty of object to given velocity and orientation
     # If no orientation given, uses current orientation of object
     # Does not account for current velocity
-    def updateVelocityObject(self, universalId, velocity, orientation=0):
+    def updateVelocityObject(self, universalId, velocity, orientation=0, zAngle=0):
         #physicsId = self.universalIdtoPhysicsId.get(universalId)
         physicsId = self.idConverter.get_current_id(universalId)
 
@@ -121,16 +121,12 @@ class Physics(Action):
 
         # Get current velocity and orientation of the object
         _, pitch, yaw = p.getEulerFromQuaternion(orientation)
-        #print(root)
-        #print(pitch)
-        #print(yaw)
-        #print()
 
         # Calculate movement vector
         movementVector = [
             velocity * math.sin(yaw) * math.cos(pitch),
             velocity * math.cos(yaw) * math.cos(pitch),
-            velocity * math.sin(pitch)
+            velocity * zAngle
             # velocity * math.cos(yaw) * math.cos(pitch),
             # velocity * math.sin(yaw) * math.cos(pitch),
             # velocity * math.sin(pitch)
@@ -211,12 +207,10 @@ class Physics(Action):
         if isinstance(action, Bullet):
             pos, orientation = (p.getBasePositionAndOrientation(self.playerId))
             pos = list(pos)
-            pos[2] = pos[2] + 0.5
+            pos[2] = pos[2] + 1.5
             physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
             self.collisionList.append(physics_id)
-            self.updateVelocityObject(action.id, 20, (action.yangle, action.xangle, -orientation[2], orientation[3]))
-            #self.updateVelocityObject(action.id, 10, (0, yCos, xCos, xSin))
-            #(orientation[0], orientation[1], action.orientationX, action.orientationY)
+            self.updateVelocityObject(action.id, 40, (orientation[0], orientation[1], -orientation[2], orientation[3]), action.angle)
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self._keypressLock.acquire()
