@@ -144,7 +144,7 @@ class Physics(Action):
 
     # Setup for required parts of the physics client
     # Does not start the simulation only sets it up
-    def setup(self, renderId):
+    def setup(self, renderId, targetId):
         self.idConverter = IdConverter()
 
         self.collisionList = []
@@ -152,9 +152,10 @@ class Physics(Action):
         #self.physicsIdtoUniversalId = {}
         # Id to render engine
         self.renderId = renderId
+        self.targetId = targetId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
         # Starts client. Change between DIRECT or GUI, depending if GUI is needed or not
-        self.physicsClient = p.connect(p.DIRECT)
+        self.physicsClient = p.connect(p.GUI)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         # Sets how long each step of the simulation should be
@@ -164,7 +165,8 @@ class Physics(Action):
         # Move to main when possible
         self.generateObject(0,"plane", pos=[0, 0, 0], movable=False, plane=True)
         self.generateObject(1, player=True)
-        self.generateObject(2, object="sphere2", movable=False)
+        self.generateObject(targetId, object="sphere2", movable=False, scaling=0.7)
+        self.targetHit()
 
         self._movementLock = Lock()
         self._keypressLock = Lock()
@@ -187,6 +189,8 @@ class Physics(Action):
             afterPosList.append(afterPos)
         self._movementLock.release()
         for i in range(1,len(objectIds)):
+            if i == 2:
+                continue
             MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(objectIds[i][1],
                 beforePosList[i][0]-afterPosList[i][0], beforePosList[i][1]-afterPosList[i][1], beforePosList[i][2]-afterPosList[i][2])))
         return Task.cont
@@ -197,7 +201,7 @@ class Physics(Action):
         for id in self.collisionList:
             contact = p.getContactPoints(id)
             if len(contact) > 0:
-                print(contact[0])
+                #print(contact[0])
                 if contact[0][2] == 2:
                     print("dsaddadsahit!!!")
                     self.targetHit()
@@ -213,9 +217,12 @@ class Physics(Action):
 
     def targetHit(self):
         print("hit!!!")
-        _, ori = p.getBasePositionAndOrientation(2)
-        pos = random.randint(0,3), random.randint(0,3), random.randint(0, 3)
-        p.resetBasePositionAndOrientation(2, pos, ori)
+        beforePos, ori = p.getBasePositionAndOrientation(2)
+        afterPos = random.randint(1,3), random.randint(1,3), 2
+        p.resetBasePositionAndOrientation(2, afterPos, ori)
+
+        MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(self.targetId,
+                afterPos[0], afterPos[1], afterPos[2])))
         #Send message to delete
 
 
