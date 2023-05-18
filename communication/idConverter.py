@@ -14,3 +14,6 @@ class IdConverter():
     
     def get_current_id(self, universal_id):
         return self.universal[universal_id]
+    
+    def get_all_current_ids(self):
+        return list(self.current.items())

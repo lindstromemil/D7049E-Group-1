@@ -4,7 +4,7 @@ import time
 import math
 from threading import Lock
 
-from communication.action import Action, CharacterMove, OnPressed, CharacterTurned
+from communication.action import Action, CharacterMove, OnPressed, CharacterTurned, ObjectMove
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
@@ -163,8 +163,7 @@ class Physics(Action):
 
         # All generate should be in main
         # Move to main when possible
-        self.generateObject(2,
-            "plane", pos=[0, 0, 0], movable=False, plane=True)
+        self.generateObject(2,"plane", pos=[0, 0, 0], movable=False, plane=True)
         self.generateObject(1, player=True)
 
         self._movementLock = Lock()
@@ -176,18 +175,26 @@ class Physics(Action):
     def start(self, task):
         self.updateVelocityPlayer()
         self._movementLock.acquire()
-        beforePos, _ = (p.getBasePositionAndOrientation(self.playerId))
+        objectIds = self.idConverter.get_all_current_ids()
+        beforePosList = []
+        for i in objectIds:
+            beforePos, _ = (p.getBasePositionAndOrientation(i[0]))
+            beforePosList.append(beforePos)
         p.stepSimulation()
-        afterPos, _ = (p.getBasePositionAndOrientation(self.playerId))
+        afterPosList = []
+        for i in objectIds:
+            afterPos, _ = (p.getBasePositionAndOrientation(i[0]))
+            afterPosList.append(afterPos)
         self._movementLock.release()
-
-        MessageHandling().add_message(Message("physics engine", self.renderId, CharacterMove(
-            beforePos[0]-afterPos[0], beforePos[1]-afterPos[1], beforePos[2]-afterPos[2])))
+        for i in range(len(objectIds)):
+            MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(objectIds[i][1],
+                beforePosList[i][0]-afterPosList[i][0], beforePosList[i][1]-afterPosList[i][1], beforePosList[i][2]-afterPosList[i][2])))
         return Task.cont
 
     # def addNewIds(self, universalId, physicsId):
     #     self.universalIdtoPhysicsId.update({universalId: physicsId})
     #     self.physicsIdtoUniversalId.update({physicsId: universalId})
+
 
     # Function to handle actions from other classes
     def do_action(self, action):
