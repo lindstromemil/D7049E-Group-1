@@ -186,8 +186,8 @@ class Physics(Action):
             afterPos, _ = (p.getBasePositionAndOrientation(i[0]))
             afterPosList.append(afterPos)
         self._movementLock.release()
-        for i in objectIds:
-            MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(i[1],
+        for i in range(len(objectIds)):
+            MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(objectIds[i][1],
                 beforePosList[i][0]-afterPosList[i][0], beforePosList[i][1]-afterPosList[i][1], beforePosList[i][2]-afterPosList[i][2])))
         return Task.cont
 
