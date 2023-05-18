@@ -4,11 +4,12 @@ import time
 import math
 from threading import Lock
 
-from communication.action import Action, CharacterMove, OnPressed, CharacterTurned, ObjectMove
+from communication.action import Action, CharacterMove, OnPressed, CharacterTurned, ObjectMove, RemoveObject
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
 from communication.idConverter import IdConverter
+import random
 
 from communication.bullet import Bullet
 
@@ -153,7 +154,7 @@ class Physics(Action):
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
         # Starts client. Change between DIRECT or GUI, depending if GUI is needed or not
-        self.physicsClient = p.connect(p.GUI)
+        self.physicsClient = p.connect(p.DIRECT)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         # Sets how long each step of the simulation should be
@@ -163,6 +164,7 @@ class Physics(Action):
         # Move to main when possible
         self.generateObject(0,"plane", pos=[0, 0, 0], movable=False, plane=True)
         self.generateObject(1, player=True)
+        self.generateObject(2, object="sphere2", movable=False)
 
         self._movementLock = Lock()
         self._keypressLock = Lock()
@@ -193,14 +195,30 @@ class Physics(Action):
         #print("Before:", self.collisionList)
         tempList = []
         for id in self.collisionList:
-            if len(p.getContactPoints(id)) > 0:
-                print(p.getContactPoints(id))
+            contact = p.getContactPoints(id)
+            if len(contact) > 0:
+                print(contact[0])
+                if contact[0][2] == 2:
+                    print("dsaddadsahit!!!")
+                    self.targetHit()
                 p.removeBody(id)
+                UID = self.idConverter.get_universal_id(id)
                 self.idConverter.delete_current_id(id)
+                # Remove message here 
+                MessageHandling().add_message(Message("physics engine", self.renderId, RemoveObject(UID)))
             else:
                 tempList.append(id)
         #print("After:",self.collisionList)
         self.collisionList = tempList
+
+    def targetHit(self):
+        print("hit!!!")
+        _, ori = p.getBasePositionAndOrientation(2)
+        pos = random.randint(0,3), random.randint(0,3), random.randint(0, 3)
+        p.resetBasePositionAndOrientation(2, pos, ori)
+        #Send message to delete
+
+
 
     # Function to handle actions from other classes
     def do_action(self, action):

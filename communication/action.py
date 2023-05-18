@@ -45,3 +45,7 @@ class ObjectMove():
         self.ycord = ycord
         self.zcord = zcord
         self.UID = UID
+
+class RemoveObject():
+    def __init__(self, UID):
+        self.UID = UID
