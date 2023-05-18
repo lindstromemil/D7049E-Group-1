@@ -16,7 +16,8 @@ from direct.actor.Actor import Actor
 import sys
 from direct.gui.OnscreenText import OnscreenText
 import time
-from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat, LMatrix4d
+from panda3d.core import TextNode, PerspectiveLens, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject, Quat, LMatrix4d, Texture, TexGenAttrib, TextureStage, SamplerState, Shader
+
 
 class Render(Action, ShowBase):
     __instance = None
@@ -44,6 +45,8 @@ class Render(Action, ShowBase):
         self.setupPhysics()
         self.setVariables()
         self.counter = 0
+        self.addGun()
+        self.addSkyBox()
 
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
@@ -169,7 +172,7 @@ class Render(Action, ShowBase):
         self.lens = PerspectiveLens()
         self.lens.setFov(60)
         self.lens.setNear(0.01)
-        self.lens.setFar(1000.0)
+        self.lens.setFar(10000.0)
         self.cam.node().setLens(self.lens)
         self.heading = -95.0
         self.pitch = 0.0
@@ -240,6 +243,49 @@ class Render(Action, ShowBase):
         self.scene.setScale(1, 1, 1)
         self.scene.setPos(0, 0, 0)
 
+    def addGun(self):
+        self.player_gun = Actor("render_module/models/arm_handgun.bam",
+              {"shoot": "render_module/models/arm_handgun_ArmatureAction.bam"})
+        self.player_gun.reparent_to(self.render)
+        self.player_gun.reparent_to(self.camera)
+        self.player_gun.set_x(self.camera, -0.05)
+        self.player_gun.set_y(self.camera, 0.4)
+        self.player_gun.set_z(self.camera, -0.1)
+        target_dot = TextNode('target_dot_node')
+        target_dot.set_text(".")
+        target_dot_node = self.aspect2d.attach_new_node(target_dot)
+        target_dot_node.set_scale(0.075)
+        target_dot_node.set_pos(-0.02, 0, -0.06)
+        blacktexture = self.loader.loadTexture("render_module/models/black.jpg")
+        blacktexture.setWrapU(blacktexture.WM_repeat)
+        self.player_gun.setTexture(blacktexture)
+
+    def addSkyBox(self):
+        # #filenames = ['sky_0.jpg', 'sky_0.jpg', 'sky_0.jpg',
+        #      #'sky_0.jpg', 'sky_0.jpg', 'sky_0.jpg']
+        # cubeMap = self.loader.loadCubeMap("render_module/models/sky_#.jpg")
+        # self.spaceSkyBox = self.loader.loadModel('models/box.egg')
+        # self.spaceSkyBox.setScale(500)
+        # self.spaceSkyBox.setBin('background', 0)
+        # self.spaceSkyBox.setDepthWrite(0)
+        # self.spaceSkyBox.setTwoSided(True)
+        # self.spaceSkyBox.setTexGen(TextureStage.getDefault(),TexGenAttrib.MWorldCubeMap)
+        # self.spaceSkyBox.setTexture(cubeMap, 1)
+        # self.spaceSkyBox.reparentTo(self.render)
+        skybox = self.loader.loadModel("render_module/models/skybox.bam")
+        skybox.reparent_to(self.render)
+        skybox.set_scale(1000)
+
+        skybox_texture = self.loader.loadTexture("render_module/models/skybox.jpg")
+        skybox_texture.set_minfilter(SamplerState.FT_linear)
+        skybox_texture.set_magfilter(SamplerState.FT_linear)
+        skybox_texture.set_wrap_u(SamplerState.WM_repeat)
+        skybox_texture.set_wrap_v(SamplerState.WM_mirror)
+        skybox_texture.set_anisotropic_degree(16)
+        skybox.set_texture(skybox_texture)
+
+        skybox_shader = Shader.load(Shader.SL_GLSL, "render_module/models/skybox.vert.glsl", "render_module/models/skybox.frag.glsl")
+        skybox.set_shader(skybox_shader)
 
         
 
