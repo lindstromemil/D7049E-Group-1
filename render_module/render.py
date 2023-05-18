@@ -8,6 +8,8 @@ from physics_module.physics import Physics
 
 from threading import Thread
 
+from communication.bullet import Bullet
+
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from direct.actor.Actor import Actor
@@ -110,6 +112,7 @@ class Render(Action, ShowBase):
         self.clock.setMode(ClockObject.MLimited)
         self.clock.setFrameRate(framerate)
 
+
     #Loads the model on which the camera is rigged to
     def loadRalph(self):
         ralphStartPos = LVector3(0, 0, 20)
@@ -146,6 +149,9 @@ class Render(Action, ShowBase):
             self.accept('shift-%s' % key, self.push_key, [key, 1])
             self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept("escape", self.close, [0])
+        self.accept('mouse1', self.shootBullet)
+        #self.disableMouse()
+
 
     def setupCamera(self):
         # Set the current viewing target
@@ -194,6 +200,7 @@ class Render(Action, ShowBase):
         self.move_z = 1
         self.cursorX = 100
         self.cursorY = 100
+
         self.box = 100
         self.universalIdtoRenderId = {}
         self.renderIdtoUniversalId = {}
@@ -207,6 +214,30 @@ class Render(Action, ShowBase):
             myTexture.setWrapU(myTexture.WM_repeat)
             model.setTexture(myTexture)
         #self.addNewIds(UID,model)
+
+
+
+    def close(self, arg):
+        self.message_handler.running = False
+        sys.exit(arg)
+
+
+    
+    def setEnvironmentModel(self, path):
+        # Load the environment model.
+        try:
+            self.scene = self.loader.loadModel(path)
+        except:
+            print("Could not load path")
+
+        # Reparent the model to render.
+        self.scene.reparentTo(self.render)
+
+        # Apply scale and position transforms on the model.
+        self.scene.setScale(1, 1, 1)
+        self.scene.setPos(0, 0, 0)
+
+
         
 
     def addNewIds(self, universalId, renderId):
@@ -232,7 +263,17 @@ class Render(Action, ShowBase):
             self.keys[key] = value
             self.message_handler.add_message(Message("render engine", self.physics_id, OnPressed(key, value)))
 
-    # multiplies each movement with a set variable when 
+
+    def shootBullet(self):
+        xangle = ((self.heading % 360)/360) * (2*pi)
+        yangle = ((self.pitch % 360)/360) * (2*pi)
+        bullet = Bullet(xangle, yangle)
+        self.message_handler.add_component(bullet)
+        self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
+        #print(xangle)
+        #print(yangle)
+        #print("shot bullet")
+
     def do_action(self, action):
         if isinstance(action, CharacterMove):
             self.move_x = action.xcord*20
