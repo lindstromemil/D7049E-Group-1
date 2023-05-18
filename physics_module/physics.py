@@ -149,6 +149,8 @@ class Physics(Action):
     # Does not start the simulation only sets it up
     def setup(self, renderId):
         self.idConverter = IdConverter()
+
+        self.collisionList = []
         #self.universalIdtoPhysicsId = {}
         #self.physicsIdtoUniversalId = {}
         # Id to render engine
@@ -170,11 +172,11 @@ class Physics(Action):
         self._keypressLock = Lock()
 
     # Rename to step!
-    # Takes a step in the simulation and tells render where to move the character
-    # TODO: Needs to update all objects positions
+    # Takes a step in the simulation and tells render where to move objects
     def start(self, task):
         self.updateVelocityPlayer()
         self._movementLock.acquire()
+        self.checkCollisionObjects()
         objectIds = self.idConverter.get_all_current_ids()
         beforePosList = []
         for i in objectIds:
@@ -190,11 +192,19 @@ class Physics(Action):
             MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(objectIds[i][1],
                 beforePosList[i][0]-afterPosList[i][0], beforePosList[i][1]-afterPosList[i][1], beforePosList[i][2]-afterPosList[i][2])))
         return Task.cont
-
-    # def addNewIds(self, universalId, physicsId):
-    #     self.universalIdtoPhysicsId.update({universalId: physicsId})
-    #     self.physicsIdtoUniversalId.update({physicsId: universalId})
-
+    
+    def checkCollisionObjects(self):
+        #print("Before:", self.collisionList)
+        tempList = []
+        for id in self.collisionList:
+            if len(p.getContactPoints(id)) > 0:
+                print(p.getContactPoints(id))
+                p.removeBody(id)
+                self.idConverter.delete_current_id(id)
+            else:
+                tempList.append(id)
+        #print("After:",self.collisionList)
+        self.collisionList = tempList
 
     # Function to handle actions from other classes
     def do_action(self, action):
@@ -203,6 +213,7 @@ class Physics(Action):
             pos = list(pos)
             pos[2] = pos[2] + 0.5
             physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
+            self.collisionList.append(physics_id)
             self.updateVelocityObject(action.id, 20, (action.yangle, action.xangle, -orientation[2], orientation[3]))
             #self.updateVelocityObject(action.id, 10, (0, yCos, xCos, xSin))
             #(orientation[0], orientation[1], action.orientationX, action.orientationY)

@@ -37,7 +37,7 @@ class Render(Action, ShowBase):
         self.idConverter = IdConverter()
         self.modelFinder = IdConverter()
         self.loadMap("render_module/models/square.egg.pz")
-        self.setClock(144)
+        self.setClock(60)
         self.loadRalph()
         self.setInstructions()
         self.setupInputSettings()
@@ -281,10 +281,8 @@ class Render(Action, ShowBase):
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         self.counter = self.counter + 1
         print(self.counter)
-        #print(xangle)
-        #print(yangle)
-        #print("shot bullet")
 
+        
     def do_action(self, action):
         if isinstance(action, CharacterMove):
             self.move_x = action.xcord*20
