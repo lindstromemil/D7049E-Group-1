@@ -258,7 +258,7 @@ class Render(Action, ShowBase):
     
     # Plays music from the Sounds folder inside audio_module
     def addMusic(self, file_name):
-        sound = Sound("'audio_module/Sounds\\'")
+        sound = Sound('audio_module/Sounds\\')
         soundThread = Thread(target=sound.play,args=(file_name, 0.1, 0, 0), daemon=True)
         soundThread.start()
     
@@ -276,7 +276,7 @@ class Render(Action, ShowBase):
         #quat.setHpr((self.heading, self.pitch, 2))
         bullet = Bullet(angle)
         self.message_handler.add_component(bullet)
-        self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
+        #self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
         pos = self.ralph.getPos()
         pos.z = pos.z+3.5
         self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/brick-c.jpg",pos,1)
@@ -304,7 +304,6 @@ class Render(Action, ShowBase):
             object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*17))
 
         if isinstance(action, RemoveObject):
-            print("removed object")
             object = self.modelFinder.get_current_id(action.UID).removeNode()
             self.idConverter.delete_universal_id(action.UID)
             self.modelFinder.delete_universal_id(action.UID)
