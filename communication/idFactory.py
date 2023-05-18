@@ -17,7 +17,7 @@ class IdFactory():
         if(self.__initialized): return
         self.__initialized = True
         self._lock = Lock()
-        self.currentID = 0
+        self.currentID = 1
 
     def get_new_id(self):
         self._lock.acquire()

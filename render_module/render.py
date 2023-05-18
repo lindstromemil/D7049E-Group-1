@@ -9,6 +9,7 @@ from audio_module.audioHandeler import Sound
 from threading import Thread
 
 from communication.bullet import Bullet
+from communication.target import Target
 from communication.idConverter import IdConverter
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -35,6 +36,7 @@ class Render(Action, ShowBase):
     # main setup function called from main
     def setup(self):
         ShowBase.__init__(self)
+        self.objectRoot = self.render.attachNewNode("objectRoot")
         self.idConverter = IdConverter()
         self.modelFinder = IdConverter()
         self.loadRalph()
@@ -48,7 +50,6 @@ class Render(Action, ShowBase):
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
 
-        self.objectRoot = self.render.attachNewNode("objectRoot")
         #self.createObject("render_module/models/npc_1.bam",2,"render_module/models/brick-c.jpg",LVector3(0,0,0),10)
 
     # called upon to close the program
@@ -180,8 +181,11 @@ class Render(Action, ShowBase):
         self.messagingThread = Thread(target=self.message_handler.handle_messages)
         self.messagingThread.start()
 
+        target = Target()
+        self.message_handler.add_component(target)
+        self.createObject("render_module/models/ball.egg.pz",target.id,"render_module/models/brick-c.jpg",LVector3(0,0,0),18)
         self.physics_engine = Physics()
-        self.physics_engine.setup(self.id)
+        self.physics_engine.setup(self.id, target.id)
         self.physics_id = self.physics_engine.id
         self.taskMgr.add(self.physics_engine.start, "physics-start-task")
 
@@ -301,9 +305,13 @@ class Render(Action, ShowBase):
                 self.move_z = action.zcord*40
                 return
             object = self.modelFinder.get_current_id(action.UID)
-            object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*17))
+            if action.UID == 2:
+                object.setPos(LVector3(-action.xcord*20, -action.ycord*20, 3.5))
+            else:
+                object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*40))
 
         if isinstance(action, RemoveObject):
+            print("removed object")
             object = self.modelFinder.get_current_id(action.UID).removeNode()
             self.idConverter.delete_universal_id(action.UID)
             self.modelFinder.delete_universal_id(action.UID)
