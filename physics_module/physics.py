@@ -9,6 +9,7 @@ from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
 from communication.idConverter import IdConverter
+import random
 
 from communication.bullet import Bullet
 
@@ -163,6 +164,7 @@ class Physics(Action):
         # Move to main when possible
         self.generateObject(0,"plane", pos=[0, 0, 0], movable=False, plane=True)
         self.generateObject(1, player=True)
+        self.generateObject(2, object="sphere2", movable=False)
 
         self._movementLock = Lock()
         self._keypressLock = Lock()
@@ -193,14 +195,28 @@ class Physics(Action):
         #print("Before:", self.collisionList)
         tempList = []
         for id in self.collisionList:
-            if len(p.getContactPoints(id)) > 0:
-                print(p.getContactPoints(id))
+            contact = p.getContactPoints(id)
+            if len(contact) > 0:
+                print(contact[0])
+                if contact[0][2] == 2:
+                    print("dsaddadsahit!!!")
+                    self.targetHit()
                 p.removeBody(id)
                 self.idConverter.delete_current_id(id)
+                # Remove message here 
             else:
                 tempList.append(id)
         #print("After:",self.collisionList)
         self.collisionList = tempList
+
+    def targetHit(self):
+        print("hit!!!")
+        _, ori = p.getBasePositionAndOrientation(2)
+        pos = random.randint(0,3), random.randint(0,3), random.randint(0, 3)
+        p.resetBasePositionAndOrientation(2, pos, ori)
+        #Send message to delete
+
+
 
     # Function to handle actions from other classes
     def do_action(self, action):
