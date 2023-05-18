@@ -3,7 +3,6 @@ from math import pi, sin, cos
 from communication.action import Action, OnPressed, CharacterMove, CharacterTurned, ObjectMove
 from communication.messageHandling import MessageHandling
 from communication.message import Message
-
 from physics_module.physics import Physics
 
 from threading import Thread
@@ -268,19 +267,21 @@ class Render(Action, ShowBase):
 
 
     def shootBullet(self):
-        #xangle = ((self.heading % 360)/360) * (pi)
-        #yangle = (self.pitch / 360) * (pi)
-        quat = Quat()
-        quat.setHpr((self.heading, self.pitch, 2))
-        bullet = Bullet(quat.x, quat.w)
+        angle = (self.pitch / 360) * (2*pi)
+        #quat = Quat()
+        #quat.setHpr((self.heading, self.pitch, 2))
+        bullet = Bullet(angle)
         pos = self.ralph.getPos()
         pos.z = pos.z+3.5
         self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/brick-c.jpg",pos,1)
-        #print(quat.w)
         self.message_handler.add_component(bullet)
+        self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         self.counter = self.counter + 1
-        print(self.counter)
+        #print(self.counter)
+        #print(xangle)
+        #print(yangle)
+        #print("shot bullet")
 
         
     def do_action(self, action):

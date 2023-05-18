@@ -1,26 +1,21 @@
 
-from .action import Action, OnClick, OnPressed, MouseMoved
+from .action import Action
+from audio_module.audioHandeler import Sound
+from threading import Thread
 
 
 #This is a test class, remove later or use as a frame of reference
 class Bullet(Action):
     
-    def __init__(self, xangle, yangle):
+    def __init__(self, angle):
         super().__init__()
-        self.xangle = xangle
-        self.yangle = yangle
+        self.angle = angle
 
 
     def do_action(self, action):
-        
-        if isinstance(action, MouseMoved):
-            print("Mouse moved to ({0} : {1}) inside bullet!".format(action.xcord, action.ycord))
-
-        elif isinstance(action, OnPressed):
-            print('key {0} pressed inside bullet!'.format(action.key))
-        
-        elif isinstance(action, OnClick):
-            print("{0} clicked at ({1} : {2}) inside bullet!".format(action.button, action.xcord, action.ycord))
-
-        else:
-            print(f"event '{action}' was done in bullet!")
+        if action == "sound":
+            print("pew!")
+            #TODO fix good sound
+            # sound = Sound('audio_module/Sounds\\')
+            # soundThread = Thread(target=sound.play,args=('m1garand.wav', 0.1, 0, 0))
+            # soundThread.start()
