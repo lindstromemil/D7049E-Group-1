@@ -36,13 +36,12 @@ Run `sample.py` to start the game engine and the game attached to it.
 pip install PyOpenAL
 pip install pynput
 pip install pybullet
+```
 
-#### Install Panda3D
+### Install Panda3D
 
 if you have python already installed on your device then simply run:
-`pip install panda3d==1.10.13`
-
-
-Otherwise download Panda3D [here](https://docs.panda3d.org/1.10/python/introduction/installation-windows)
-
 ```
+pip install panda3d==1.10.13
+```
+Otherwise download Panda3D [here](https://docs.panda3d.org/1.10/python/introduction/installation-windows)
