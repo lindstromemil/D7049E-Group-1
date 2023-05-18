@@ -38,3 +38,10 @@ class CharacterTurned():
     def __init__(self, orientationX, orientationY):
         self.orientationX = orientationX
         self.orientationY = orientationY
+
+class ObjectMove():
+    def __init__(self, UID, xcord, ycord, zcord):
+        self.xcord = xcord
+        self.ycord = ycord
+        self.zcord = zcord
+        self.UID = UID
