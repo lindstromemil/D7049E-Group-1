@@ -105,9 +105,16 @@ class Render(Action, ShowBase):
         # Apply scale and position transforms on the model.
         self.scene.setScale(1000, 1000, 1000)
         self.scene.setPos(0, 0, -15)
-        myTexture = self.loader.loadTexture("render_module/models/ralph.jpg")
-        myTexture.setWrapU(myTexture.WM_repeat)
-        self.scene.setTexture(myTexture)
+        myTexture = self.loader.loadTexture("render_module/models/grass.jpg")
+        myTexture.setMagfilter(SamplerState.FT_linear)
+        myTexture.setMinfilter(SamplerState.FT_linear_mipmap_linear)
+        tex_stage = TextureStage('tex_stage')
+        myTexture.setWrapU(Texture.WM_repeat)
+        myTexture.setWrapV(Texture.WM_repeat)
+        scale_factor = 0.05  # Adjust the scale factor as needed
+        self.scene.setTexScale(tex_stage, scale_factor, scale_factor)
+        self.scene.setTexGen(tex_stage, TexGenAttrib.M_world_position)
+        self.scene.setTexture(tex_stage, myTexture)
 
     # the clock is not actually set here and this code maybe dont do anything
     def setClock(self,framerate):
@@ -261,17 +268,6 @@ class Render(Action, ShowBase):
         self.player_gun.setTexture(blacktexture)
 
     def addSkyBox(self):
-        # #filenames = ['sky_0.jpg', 'sky_0.jpg', 'sky_0.jpg',
-        #      #'sky_0.jpg', 'sky_0.jpg', 'sky_0.jpg']
-        # cubeMap = self.loader.loadCubeMap("render_module/models/sky_#.jpg")
-        # self.spaceSkyBox = self.loader.loadModel('models/box.egg')
-        # self.spaceSkyBox.setScale(500)
-        # self.spaceSkyBox.setBin('background', 0)
-        # self.spaceSkyBox.setDepthWrite(0)
-        # self.spaceSkyBox.setTwoSided(True)
-        # self.spaceSkyBox.setTexGen(TextureStage.getDefault(),TexGenAttrib.MWorldCubeMap)
-        # self.spaceSkyBox.setTexture(cubeMap, 1)
-        # self.spaceSkyBox.reparentTo(self.render)
         skybox = self.loader.loadModel("render_module/models/skybox.bam")
         skybox.reparent_to(self.render)
         skybox.set_scale(1000)
@@ -325,7 +321,7 @@ class Render(Action, ShowBase):
         #self.message_handler.add_message(Message("render engine", bullet.id, "sound"))
         pos = self.ralph.getPos()
         pos.z = pos.z+3.5
-        self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/brick-c.jpg",pos,1)
+        self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/disco.jpg",pos,1)
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
         self.counter = self.counter + 1
         #print(self.counter)
