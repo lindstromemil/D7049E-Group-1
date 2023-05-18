@@ -4,7 +4,7 @@ import time
 import math
 from threading import Lock
 
-from communication.action import Action, CharacterMove, OnPressed, CharacterTurned, ObjectMove
+from communication.action import Action, CharacterMove, OnPressed, CharacterTurned, ObjectMove, RemoveObject
 from communication.message import Message
 from communication.messageHandling import MessageHandling
 from direct.task import Task
@@ -154,7 +154,7 @@ class Physics(Action):
         self.renderId = renderId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
         # Starts client. Change between DIRECT or GUI, depending if GUI is needed or not
-        self.physicsClient = p.connect(p.GUI)
+        self.physicsClient = p.connect(p.DIRECT)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         # Sets how long each step of the simulation should be
@@ -202,8 +202,10 @@ class Physics(Action):
                     print("dsaddadsahit!!!")
                     self.targetHit()
                 p.removeBody(id)
+                UID = self.idConverter.get_universal_id(id)
                 self.idConverter.delete_current_id(id)
                 # Remove message here 
+                MessageHandling().add_message(Message("physics engine", self.renderId, RemoveObject(UID)))
             else:
                 tempList.append(id)
         #print("After:",self.collisionList)

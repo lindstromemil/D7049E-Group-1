@@ -20,3 +20,6 @@ class IdConverter():
     
     def delete_current_id(self, current):
         self.current.pop(self.universal.pop(self.current[current]))
+
+    def delete_universal_id(self, universal):
+        self.universal.pop(self.current.pop(self.universal[universal]))
