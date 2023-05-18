@@ -155,7 +155,7 @@ class Physics(Action):
         self.targetId = targetId
         self.keys = {'a': 0, 'd': 0, 'w': 0, 's': 0, 'space': 0}
         # Starts client. Change between DIRECT or GUI, depending if GUI is needed or not
-        self.physicsClient = p.connect(p.GUI)
+        self.physicsClient = p.connect(p.DIRECT)
         p.setGravity(0, 0, -10)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         # Sets how long each step of the simulation should be
@@ -203,7 +203,7 @@ class Physics(Action):
             if len(contact) > 0:
                 #print(contact[0])
                 if contact[0][2] == 2:
-                    print("dsaddadsahit!!!")
+                    #print("dsaddadsahit!!!")
                     self.targetHit()
                 p.removeBody(id)
                 UID = self.idConverter.get_universal_id(id)
@@ -216,7 +216,7 @@ class Physics(Action):
         self.collisionList = tempList
 
     def targetHit(self):
-        print("hit!!!")
+        #print("hit!!!")
         beforePos, ori = p.getBasePositionAndOrientation(2)
         afterPos = random.randint(1,3), random.randint(1,3), 2
         p.resetBasePositionAndOrientation(2, afterPos, ori)
@@ -235,7 +235,7 @@ class Physics(Action):
             pos[2] = pos[2] + 1.5
             physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
             self.collisionList.append(physics_id)
-            self.updateVelocityObject(action.id, 40, (orientation[0], orientation[1], -orientation[2], orientation[3]), action.angle)
+            self.updateVelocityObject(action.id, 60, (orientation[0], orientation[1], -orientation[2], orientation[3]), action.angle)
         if isinstance(action, OnPressed):
             #print("key pressed: ({0} : {1}) inside physics engine".format(action.key, action.value))
             self._keypressLock.acquire()

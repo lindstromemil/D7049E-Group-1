@@ -146,6 +146,7 @@ class Render(Action, ShowBase):
         self.inst4 = self.addInstructions(0.24, "S: Move backwards")
         self.inst5 = self.addInstructions(0.30, "A: Move left")
         self.inst6 = self.addInstructions(0.36, "D: Move right")
+        self.inst7 = self.addInstructions(0.42, "Left mouse button: Shoot")
 
     #hides mouse and binds keybindings to listeners
     def setupInputSettings(self):
@@ -317,7 +318,7 @@ class Render(Action, ShowBase):
 
 
     def shootBullet(self):
-        angle = (self.pitch / 360) * (2*pi)
+        angle = (self.pitch / 360) * (1.1*pi)
         #quat = Quat()
         #quat.setHpr((self.heading, self.pitch, 2))
         bullet = Bullet(angle)
@@ -353,7 +354,7 @@ class Render(Action, ShowBase):
                 object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*40))
 
         if isinstance(action, RemoveObject):
-            print("removed object")
+            #print("removed object")
             object = self.modelFinder.get_current_id(action.UID).removeNode()
             self.idConverter.delete_universal_id(action.UID)
             self.modelFinder.delete_universal_id(action.UID)
