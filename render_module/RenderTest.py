@@ -8,6 +8,8 @@ import sys
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import TextNode, PerspectiveLens, CardMaker, WindowProperties, LPoint3, LVector3, Point3, NodePath, PandaNode, ClockObject
 
+from direct.interval.IntervalGlobal import *
+
 #necessary installation in order to run glb files in panda
 #python -m pip install -U panda3d-gltf
 
@@ -79,6 +81,8 @@ class MyApp(ShowBase):
             self.accept('%s-up' % key, self.push_key, [key, 0])
         self.accept('escape', __import__('sys').exit, [0])
         self.disableMouse()
+        self.accept("mouse1", self.setMouseBtn, [0, 1])
+        self.accept("mouse1-up", self.setMouseBtn, [0, 0])
 
         # Set the current viewing target
         self.focus = LVector3(55, -55, 20)
@@ -103,6 +107,8 @@ class MyApp(ShowBase):
         self.pitch = 0.0
 
         self.gun()
+        self.use_seq_cleanup = True
+        self.use_async_cleanup = False
 
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
@@ -168,7 +174,7 @@ class MyApp(ShowBase):
         #                           posInterval2, hprInterval2,
         #                           name="pandaPace")
         # self.pandaPace.loop()
-    
+
     def controlCamera(self, task):
         # figure out how much the mouse has moved (in pixels)
         md = self.win.getPointer(0)
@@ -241,6 +247,8 @@ class MyApp(ShowBase):
         # self.camera.lookAt(self.floater)
         # if(x != 0 or y != 0):
         #     self.taskMgr.add(self.dum, "dum-task")
+        if self.mousebtn[0]:
+            self.gamepad_trigger_shoot_async()
 
         return Task.cont
 
@@ -257,23 +265,6 @@ class MyApp(ShowBase):
 
     # Function to put instructions on the screen.
     def gun(self):
-        # # reparent player character to render node
-        # fp_character = Actor("models/npc_1.bam",
-        #       {"walking": "models/npc_1_ArmatureAction.bam", "death": "models/npc_1_death.bam"})
-        # fp_character.reparent_to(self.render)
-        # fp_character.set_scale(1)
-        # # set the actor skinning hardware shader
-        # #fp_character.set_attrib(scene_shader)
-
-        # self.camera.reparent_to(fp_character)
-        # # reparent character to FPS cam
-        # #fp_character.reparent_to(fp_character)
-        # fp_character.set_pos(0, 0, -0.95)
-        # # self.camera.set_x(self.player, 1)
-        # self.camera.set_y(fp_character, 0.03)
-        # self.camera.set_z(fp_character, 0.5)
-        
-        # player gun begins
         self.player_gun = Actor("models/arm_handgun.bam",
               {"shoot": "models/arm_handgun_ArmatureAction.bam"})
         self.player_gun.reparent_to(self.render)
@@ -287,6 +278,54 @@ class MyApp(ShowBase):
         target_dot_node = self.aspect2d.attach_new_node(target_dot)
         target_dot_node.set_scale(0.075)
         target_dot_node.set_pos(0, 0, 0)
+
+    def is_npc_1_shot_seq(self):
+        def gun_anim():
+            gun_ctrl = self.arm_handgun.get_anim_control('shoot')
+            if not gun_ctrl.is_playing():
+                self.arm_handgun.stop()
+                self.arm_handgun.play("shoot")
+                self.arm_handgun.set_play_rate(12.0, 'shoot')
+        
+        seq = Sequence()
+        seq.append(Func(gun_anim))
+        seq.append(Wait(0.2))
+    
+    # if self.use_seq_cleanup:
+    #     self.accept('mouse1', self.is_npc_1_shot_seq)
+        
+    # elif self.use_async_cleanup:
+    #     self.accept('mouse1', self.is_npc_1_shot_async)
+
+    # self.gamepad_npc_cleanup_bool = False
+
+    def gamepad_trigger_shoot_seq(self):
+        def gun_anim():
+            gun_ctrl = actor_data.arm_handgun.get_anim_control('shoot')
+            if not gun_ctrl.is_playing():
+                self.arm_handgun.stop()
+                self.arm_handgun.play("shoot")
+                self.arm_handgun.set_play_rate(12.0, 'shoot')
+        
+        seq = Sequence()
+        seq.append(Func(gun_anim))
+        seq.append(Wait(0.2))
+
+    def gamepad_trigger_shoot_async(self):
+        def gun_anim(task):
+            gun_ctrl = self.arm_handgun.get_anim_control('shoot')
+            if not gun_ctrl.is_playing():
+                self.arm_handgun.stop()
+                self.arm_handgun.play("shoot")
+                self.arm_handgun.set_play_rate(12.0, 'shoot')
+                self.last = task.time
+            
+        self.taskMgr.add(gun_anim,"gun-anim")
+
+    def setMouseBtn(self, btn, value):
+        self.mousebtn[btn] = value
+
+
 
 def addInstructions(pos, msg):
     return OnscreenText(text=msg, style=1, fg=(1, 1, 1, 1), scale=.05,
