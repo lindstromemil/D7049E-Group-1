@@ -1,6 +1,6 @@
 from math import pi, sin, cos
 
-from communication.action import Action, OnPressed, CharacterMove, CharacterTurned
+from communication.action import Action, OnPressed, CharacterMove, CharacterTurned, ObjectMove
 from communication.messageHandling import MessageHandling
 from communication.message import Message
 
@@ -36,7 +36,7 @@ class Render(Action, ShowBase):
         ShowBase.__init__(self)
         self.idConverter = IdConverter()
         self.modelFinder = IdConverter()
-        self.loadMap("models/environment")
+        self.loadMap("render_module/models/square.egg.pz")
         self.setClock(144)
         self.loadRalph()
         self.setInstructions()
@@ -46,12 +46,13 @@ class Render(Action, ShowBase):
         self.setFullscreen(False)
         self.setVariables()
         self.addTitle("GunAimLab")
+        self.counter = 0
 
         # Start the camera control task:
         self.taskMgr.add(self.controlCamera, "camera-task")
 
         self.objectRoot = self.render.attachNewNode("objectRoot")
-        self.createObject("render_module/models/npc_1.bam",1,"render_module/models/brick-c.jpg",LVector3(0,0,0),10)
+        #self.createObject("render_module/models/npc_1.bam",2,"render_module/models/brick-c.jpg",LVector3(0,0,0),10)
 
     # called upon to close the program
     def close(self, arg):
@@ -92,7 +93,7 @@ class Render(Action, ShowBase):
         
         xangle = 1*cos(angle+ pi/2.5) 
         yangle = 1*sin(angle+ pi/2.5)
-        self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 3.5))
+        self.camera.setPos(self.ralph.getPos() + LVector3(xangle, yangle, 5))
 
         return Task.cont
     
@@ -102,8 +103,11 @@ class Render(Action, ShowBase):
         # Reparent the model to render.
         self.scene.reparentTo(self.render)
         # Apply scale and position transforms on the model.
-        self.scene.setScale(1, 1, 1)
-        self.scene.setPos(0, 0, 0)
+        self.scene.setScale(1000, 1000, 1000)
+        self.scene.setPos(0, 0, -15)
+        myTexture = self.loader.loadTexture("render_module/models/ralph.jpg")
+        myTexture.setWrapU(myTexture.WM_repeat)
+        self.scene.setTexture(myTexture)
 
     # the clock is not actually set here and this code maybe dont do anything
     def setClock(self,framerate):
@@ -271,10 +275,12 @@ class Render(Action, ShowBase):
         bullet = Bullet(quat.x, quat.w)
         pos = self.ralph.getPos()
         pos.z = pos.z+3.5
-        self.createObject("render_module/models/ball.egg.pz",1,"render_module/models/brick-c.jpg",pos,0.5)
+        self.createObject("render_module/models/ball.egg.pz",bullet.id,"render_module/models/brick-c.jpg",pos,1)
         #print(quat.w)
         self.message_handler.add_component(bullet)
         self.message_handler.add_message(Message("render engine", self.physics_id, bullet))
+        self.counter = self.counter + 1
+        print(self.counter)
         #print(xangle)
         #print(yangle)
         #print("shot bullet")
@@ -284,3 +290,13 @@ class Render(Action, ShowBase):
             self.move_x = action.xcord*20
             self.move_y = action.ycord*20
             self.move_z = action.zcord*40
+
+        if isinstance(action, ObjectMove):
+            if action.UID == 1:
+                self.move_x = action.xcord*20
+                self.move_y = action.ycord*20
+                self.move_z = action.zcord*40
+                return
+            object = self.modelFinder.get_current_id(action.UID)
+            object.setPos(object.getPos() + LVector3(action.xcord*20, action.ycord*20, -action.zcord*17))
+

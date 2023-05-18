@@ -122,9 +122,9 @@ class Physics(Action):
         # Get current velocity and orientation of the object
         _, pitch, yaw = p.getEulerFromQuaternion(orientation)
         #print(root)
-        print(pitch)
-        print(yaw)
-        print()
+        #print(pitch)
+        #print(yaw)
+        #print()
 
         # Calculate movement vector
         movementVector = [
@@ -163,7 +163,7 @@ class Physics(Action):
 
         # All generate should be in main
         # Move to main when possible
-        self.generateObject(2,"plane", pos=[0, 0, 0], movable=False, plane=True)
+        self.generateObject(0,"plane", pos=[0, 0, 0], movable=False, plane=True)
         self.generateObject(1, player=True)
 
         self._movementLock = Lock()
@@ -186,7 +186,7 @@ class Physics(Action):
             afterPos, _ = (p.getBasePositionAndOrientation(i[0]))
             afterPosList.append(afterPos)
         self._movementLock.release()
-        for i in range(len(objectIds)):
+        for i in range(1,len(objectIds)):
             MessageHandling().add_message(Message("physics engine", self.renderId, ObjectMove(objectIds[i][1],
                 beforePosList[i][0]-afterPosList[i][0], beforePosList[i][1]-afterPosList[i][1], beforePosList[i][2]-afterPosList[i][2])))
         return Task.cont
@@ -199,14 +199,11 @@ class Physics(Action):
     # Function to handle actions from other classes
     def do_action(self, action):
         if isinstance(action, Bullet):
-            #self.idConverter.add_ids(physics_id, action.id)
-            xCos = math.cos(action.xangle)
-            xSin = math.sin(action.xangle)
-            yCos = math.cos(action.yangle)
-            ySin = math.sin(action.yangle)
-            pos, orientation = (p.getBasePositionAndOrientation(1))
+            pos, orientation = (p.getBasePositionAndOrientation(self.playerId))
+            pos = list(pos)
+            pos[2] = pos[2] + 0.5
             physics_id = self.generateObject(action.id, pos=pos, object="cube_small")
-            self.updateVelocityObject(action.id, 10, (action.yangle, action.xangle, -orientation[2], orientation[3]))
+            self.updateVelocityObject(action.id, 20, (action.yangle, action.xangle, -orientation[2], orientation[3]))
             #self.updateVelocityObject(action.id, 10, (0, yCos, xCos, xSin))
             #(orientation[0], orientation[1], action.orientationX, action.orientationY)
         if isinstance(action, OnPressed):
