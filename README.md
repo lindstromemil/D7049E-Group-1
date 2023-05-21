@@ -45,3 +45,7 @@ pip install pybullet
 
 Install Panda3D
 ```
+
+### Usage
+
+Adding assets into the game is done by moving the desired 3d models and textures into the models folder and then calling the `createNewObject()` function from `render.py`
