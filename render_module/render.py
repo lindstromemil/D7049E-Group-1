@@ -234,6 +234,12 @@ class Render(Action, ShowBase):
         self.modelFinder.add_ids(model, UID)
 
 
+    def createNewObject(self, component: Action, path, texturePath, lvector3=LVector3(0,0,0), size=1, physicsObject="cube", orientation=[0, 0, 0]):
+        self.message_handler.add_component(component)
+        self.createObject(path, component.id, texturePath, lvector3, size)
+        self.physics_engine.generateObject(component.id, physicsObject, [lvector3.x, lvector3.y, lvector3.z], orientation)
+
+
 
     def close(self, arg):
         self.message_handler.running = False

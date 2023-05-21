@@ -18,3 +18,20 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+""" Documentation 
+
+    We have the player and plane spawn in when you run the game engine
+
+    To create an object you must first create a class that
+    implements the Action class. That is what you send into
+    game_engine.createNewObject()
+
+    Create new object in both rendering and physics -> game_engine.createNewObject()
+    Add music to game -> game_engine.addMusic() 
+    Set fullscreen -> game_engine.setFullscreen()
+    Set runtime clock -> game_engine.setClock()
+    Load map -> game_engine.loadMap()
+    Add title -> game_engine.addTitle()
+"""
