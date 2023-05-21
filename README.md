@@ -4,6 +4,9 @@ The group consists of 4 people studying D7049E at LTU.
 ### Games Genre:
 3D shooter with focus on aim training similar to [Aim Lab](https://aimlab.gg/)
 
+## Final Delivery (Milestone 4)
+[Report](https://docs.google.com/document/d/1oaK3dLGr1OUCpvSaUEKPU0Bdfnyb6rzWcu-_zArfFEQ/edit?usp=sharing)
+
 ## Implementation (Milestone 3)
 During implementation we realised that OGRE for Python was quite outdated and the docs were deprecated. Because of this we will use Panda3D for our rendering instead.
 Aside from that implemenation is going as planned, we only have to implement graphics and physics to have it done at the moment.
@@ -29,9 +32,9 @@ Both documents will get updated as the course progresses and are not final.
 
 ## Setup
 
-Run `sample.py` to start the game engine and the game attached to it.
+Run `main.py` to start the game engine and the game attached to it.
 
-### All pip installs (so far)
+### All pip installs
 ```
 pip install PyOpenAL
 pip install pybullet
