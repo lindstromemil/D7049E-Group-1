@@ -44,3 +44,7 @@ if you have python already installed on your device then simply run:
 pip install panda3d==1.10.13
 ```
 Otherwise download Panda3D [here](https://docs.panda3d.org/1.10/python/introduction/installation-windows)
+
+### Usage
+
+In order to load in assets in the game add any models and textures to be used inside the `models` folder and call upon the `createNewObject()` function from the `render.py` file.
